@@ -7,13 +7,14 @@ import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol
 contract RampManager {
     using SafeERC20 for IERC20;
 
+    IERC20 public baseAsset;
+
     struct Order {
         address escrow;
         address taker;
-        address _baseAsset;
-        uint256 _baseAmount;
-        address _requestedAsset;
-        uint256 _requestedAmount;
+        uint256 baseAmount;
+        address requestedAsset;
+        uint256 requestedAmount;
     }
 
     event MakerOnboarded(uint256 indexed nullifierHash, address indexed escrow);
@@ -28,10 +29,13 @@ contract RampManager {
     // mapping(address => mapping(uint256 => Order)) public orders;
     // mapping(address => uint256) public ordersIndex;
 
-    constructor() {}
+    constructor(address _baseAsset) {
+        // define the base asset => EURe
+        baseAsset = IERC20(_baseAsset);
+    }
 
     modifier onlyMaker(address _escrow) {
-        require(msg.sender == IEscrowModule(_escrow).avatar(), "!maker");
+        // require(msg.sender == IEscrowModule(_escrow).avatar(), "!maker");
         _;
     }
 
@@ -39,37 +43,51 @@ contract RampManager {
         //@todo validate if msg.sender is allowed
         require(_nullifierHashs[_escrow] == 0, "nullifierHash already exists");
         require(_escrowModules[_nullifierHash] == address(0), "escrow module already exists");
+        //@todo finish chainlink fns params
+        require(_verifyProof() == _nullifierHash, "sry u are not the worldcoin user lol");
         // set both nullifierhash & escrow modules
         _escrowModules[_nullifierHash] = _escrow;
         _nullifierHashs[_escrow] = _nullifierHash;
-        //@todo insert chainlink functions call here for the worldcoin api verification check
         // IEscrowModule(_escrow).;
+        //@todo add monerium setup here
+        //@todo add noun setup here, if we have time?
     }
 
-    function createOrder(
-        address _escrow,
-        address _baseAsset,
-        uint256 _baseAmount,
-        address _requestedAsset,
-        uint256 _requestedAmount
-    ) external onlyMaker(_escrow) {
+    //@todo logic to verify the worldcoin id using chainlink functions
+    function _verifyProof() internal returns (uint256) {
+        //@todo insert chainlink functions call here
+    }
+
+    function createOrder(address _escrow, uint256 _baseAmount, address _requestedAsset, uint256 _requestedAmount)
+        external
+        onlyMaker(_escrow)
+    {
         //can't create order unless they have the funds in wallet
-        require(baseAsset.balanceOf(this.avatar()) >= _baseAmount, "Need moar EURe");
+        require(baseAsset.balanceOf(IEscrowModule(_escrow).avatar()) >= _baseAmount, "Need moar EURe");
         require(_requestedAmount > 0, "!requestedAmount");
         require(_requestedAsset == address(0), "!requestedAsset");
         // add order to ramp manager;
         //@audit how to validate if msg.sender is an escrow module?
-        Order memory order = Order(_escrow, address(0), _baseAsset, _baseAmount, _requestedAsset, _requestedAmount);
+        Order memory order = Order(_escrow, address(0), _baseAmount, _requestedAsset, _requestedAmount);
         ordersIndex++;
         orders[ordersIndex] = order;
     }
 
-    function fulfillOrder(Order memory _order) public {
+    //any taker can fulfill order
+    //cant wash trade due to notMaker()
+    function fulfillOrder(uint256 _orderIndex, uint256 _nullifierHash) public {
+        //@todo validate the order actually exists;
+        Order memory order = orders[_orderIndex];
+        IERC20 memory requestedAsset = IERC20(order.requestedAsset);
+        require(msg.sender != IEscrowModule(order._escrow).avatar(), "you are the maker");
+        require(requestedAsset.balanceOf(msg.sender) >= order.requestedAmount, "Need moar monies");
+        //@todo finish params for this
+        require(_verifyProof() == _nullifierHash, "sry u are not the worldcoin user lol");
         // require(_order == _order.);
-        // approve the
-        IERC20(_order._requestedAsset).safeApprove(_order.escrow, _order._requestedAmount);
-        IERC20(_order._requestedAsset).safeTransfer(_order.escrow, _order._requestedAmount);
-        // anyone can fulfill an order
-        IEscrowModule(_order.escrow).fulfillOrder(_order);
+        // send the tokens to the escrow module
+        IERC20(order.requestedAsset).safeApprove(order.escrow, order.requestedAmount);
+        IERC20(order.requestedAsset).safeTransfer(order.escrow, order.requestedAmount);
+        orders.taker = msg.sender;
+        orders[_orderIndex] = order;
     }
 }

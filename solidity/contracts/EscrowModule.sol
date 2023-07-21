@@ -10,12 +10,12 @@ contract EscrowModule is Module {
     using SafeERC20 for IERC20;
 
     address public rampController;
-    IRampManager public rampManager;
+    address public rampManager;
 
-    IERC20 public baseAsset;
+    uint256 nullifierHash;
 
-    constructor(address _fundSafe, address _rampController, address _baseAsset, address _rampManager) {
-        bytes memory initializeParams = abi.encode(_fundSafe, _rampController, _baseAsset, _rampManager);
+    constructor(address _fundSafe, address _rampController, address _rampManager) {
+        bytes memory initializeParams = abi.encode(_fundSafe, _rampController, _rampManager);
         setUp(initializeParams);
     }
 
@@ -24,8 +24,8 @@ contract EscrowModule is Module {
     function setUp(bytes memory initializeParams) public virtual override initializer {
         //This func is needed for modules as they are minimal proxies pointing to a master copy so its like a constructor work around
         __Ownable_init();
-        (address _fundSafe, address _rampController, address _baseAsset, address _rampManager) =
-            abi.decode(initializeParams, (address, address, address, address));
+        (address _fundSafe, address _rampController, address _rampManager) =
+            abi.decode(initializeParams, (address, address, address));
         //This module will execute tx's on behalf of this avatar (aka sc wallet)
         setAvatar(_fundSafe);
         //Safe modules call on the Target contract (in our case its the safe too) so it to be set
@@ -33,13 +33,16 @@ contract EscrowModule is Module {
         transferOwnership(_fundSafe);
         // define the unramped controller
         rampController = _rampController;
-        // define the base asset => EURe
-        baseAsset = IERC20(_baseAsset);
-        rampManager = IRampManager(_rampManager);
+        rampManager = _rampManager;
     }
 
     modifier onlyController() {
         require(msg.sender == rampController, "!controller");
+        _;
+    }
+
+    modifier onlyRampManager() {
+        require(msg.sender == rampManager, "!rampManager");
         _;
     }
 
@@ -49,12 +52,12 @@ contract EscrowModule is Module {
         rampController = _newController;
     }
 
-    function fulfillOrder() public {
-        // require();
-    }
-
+    //@todo allow this to be called by anyone after a certain amount of time & a reimbursement of gas using maker's fee
     function releaseFunds() external onlyController {}
 
     // @audit 1inch swap
     function swapFunds() public {}
+
+    // assigns a soulbound noun to the escrowModule
+    function activateModule() external onlyRampManager {}
 }
