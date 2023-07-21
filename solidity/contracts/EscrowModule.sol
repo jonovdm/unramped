@@ -49,18 +49,6 @@ contract EscrowModule is Module {
         rampController = _newController;
     }
 
-    //@audit safe owner submits a order
-    function createOrder(uint256 _baseAmount, address _requestedAsset, uint256 _requestedAmount) external onlyOwner {
-        //can't create order unless they have the funds in wallet
-        require(baseAsset.balanceOf(this.avatar()) >= _baseAmount, "Need moar EURe");
-        require(_requestedAmount > 0, "!requestedAmount");
-        require(_requestedAsset == address(0), "!requestedAsset");
-        // add order to ramp manager;
-        rampManager.createOrder(
-            address(this), address(0), address(baseAsset), _baseAmount, _requestedAsset, _requestedAmount
-        );
-    }
-
     function fulfillOrder() public {
         // require();
     }
