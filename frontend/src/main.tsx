@@ -4,6 +4,7 @@ import { ThemeProvider, CssBaseline } from '@mui/material'
 import { SafeThemeProvider } from '@safe-global/safe-react-components'
 
 import Stripe from './components/Stripe'
+import Orders from './components/orders/Orders'
 import Monerium from './components/monerium/Monerium'
 import App from './App'
 
@@ -16,12 +17,12 @@ const router = createBrowserRouter([
     children: [
       {
         path: '/',
-        element: <Navigate to="/stripe" replace />,
+        element: <Navigate to="/orders" replace />,
         index: true
       },
       {
-        path: '/stripe',
-        element: <Stripe />
+        path: '/orders',
+        element: <Orders />
       },
       {
         path: 'monerium',

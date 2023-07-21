@@ -20,14 +20,14 @@ const AppBar = () => {
   return (
     <StyledAppBar position="static" color="default">
       <Typography variant="h3" pl={3} fontWeight={700}>
-        OnRamp
+        Unramped
       </Typography>
       <nav>
-        <Link to={`/stripe`} component={RouterLink} pl={2} sx={{ textDecoration: 'none' }}>
-          Stripe
-        </Link>
         <Link to={`/monerium`} component={RouterLink} pl={2} sx={{ textDecoration: 'none' }}>
-          Monerium
+          Account
+        </Link>
+        <Link to={`/orders`} component={RouterLink} pl={2} sx={{ textDecoration: 'none' }}>
+          Orders
         </Link>
       </nav>
       <Box mr={5} display="flex" justifyContent="flex-end" alignItems="center" width="100%">
