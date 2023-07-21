@@ -1,3 +1,9 @@
 [submodule "zodiac"]
 	path = solidity-forge/lib/zodiac
 	url = https://github.com/gnosis/zodiac
+[submodule "solidity-forge/zodiac"]
+	path = solidity-forge/lib/zodiac/zodiac
+	url = https://github.com/gnosis/zodiac
+[submodule "solidity-forge/lib/zodiac"]
+	path = solidity-forge/lib/zodiac
+	url = https://github.com/gnosis/zodiac
