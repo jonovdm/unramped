@@ -15,6 +15,7 @@ contract RampManager {
         uint256 baseAmount;
         address requestedAsset;
         uint256 requestedAmount;
+        bool complete;
     }
 
     event MakerOnboarded(uint256 indexed nullifierHash, address indexed escrow);
@@ -49,7 +50,7 @@ contract RampManager {
         _escrowModules[_nullifierHash] = _escrow;
         _nullifierHashs[_escrow] = _nullifierHash;
         // IEscrowModule(_escrow).;
-        //@todo add monerium setup here
+        //@todo ensure the maker has set up a monerium account?
         //@todo add noun setup here, if we have time?
     }
 
