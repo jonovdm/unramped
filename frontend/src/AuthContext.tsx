@@ -2,7 +2,9 @@ import React, { createContext, useState, useEffect } from 'react'
 import { Web3AuthOptions } from '@web3auth/modal'
 import { CHAIN_NAMESPACES, SafeEventEmitterProvider, WALLET_ADAPTERS } from '@web3auth/base'
 import { OpenloginAdapter } from '@web3auth/openlogin-adapter'
-import { SafeAuthKit, Web3AuthModalPack, SafeAuthSignInData } from '@safe-global/auth-kit'
+// https://github.com/safe-global/safe-core-sdk/pull/443
+// push changes upstream to safe-core-sdk
+import { AuthKitSignInData, Web3AuthModalPack, Web3AuthEventListener } from '@safe-global/auth-kit'
 
 type AuthContextProviderProps = {
   children: React.ReactNode
@@ -11,7 +13,7 @@ type AuthContextProviderProps = {
 type AuthContextType = {
   isLoggedIn: boolean
   provider?: SafeEventEmitterProvider
-  data?: SafeAuthSignInData
+  data?: AuthKitSignInData
   selectedSafe: string
   setSelectedSafe?: (safe: string) => void
   logIn?: () => void
@@ -25,13 +27,14 @@ export const AuthContext = createContext<AuthContextType>({
 
 const AuthProvider = ({ children }: AuthContextProviderProps) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false)
-  const [safeAuth, setSafeAuth] = useState<SafeAuthKit<Web3AuthModalPack>>()
-  const [safeAuthSignInResponse, setSafeAuthSignInResponse] = useState<SafeAuthSignInData>()
+  // const [safeAuth, setSafeAuth] = useState<SafeAuthKit<Web3AuthModalPack>>()
+  const [web3AuthModalPack, setWeb3AuthModalPack] = useState<Web3AuthModalPack>()
+  const [safeAuthSignInResponse, setSafeAuthSignInResponse] = useState<AuthKitSignInData>()
   const [provider, setProvider] = useState<SafeEventEmitterProvider | undefined>()
   const [selectedSafe, setSelectedSafe] = useState('')
 
   useEffect(() => {
-    ;(async () => {
+    ; (async () => {
       const options: Web3AuthOptions = {
         clientId: import.meta.env.VITE_WEB3AUTH_CLIENT_ID || '',
         web3AuthNetwork: 'testnet',
@@ -70,16 +73,15 @@ const AuthProvider = ({ children }: AuthContextProviderProps) => {
         }
       })
 
-      const web3AuthPack = new Web3AuthModalPack(options, [openloginAdapter], modalConfig)
-
-      const safeAuthKit = await SafeAuthKit.init(web3AuthPack, {
+      const web3AuthModalPack = new Web3AuthModalPack({
         txServiceUrl: 'https://safe-transaction-goerli.safe.global'
       })
+      await web3AuthModalPack.init({ options, adapters: [openloginAdapter], modalConfig })
 
-      const provider = safeAuthKit.getProvider()
+      const provider = web3AuthModalPack.getProvider()
 
       if (provider) {
-        const response = await safeAuthKit.signIn()
+        const response = await web3AuthModalPack.signIn()
         setSafeAuthSignInResponse(response)
         setSelectedSafe(response?.safes?.[0] || '')
         setProvider(provider as SafeEventEmitterProvider)
@@ -87,26 +89,26 @@ const AuthProvider = ({ children }: AuthContextProviderProps) => {
         setIsLoggedIn(true)
       }
 
-      setSafeAuth(safeAuthKit)
+      setWeb3AuthModalPack(web3AuthModalPack)
     })()
   }, [])
 
   const logIn = async () => {
-    if (!safeAuth) return
+    if (!web3AuthModalPack) return
 
-    const response = await safeAuth.signIn()
+    const response = await web3AuthModalPack.signIn()
     console.log('SIGN IN RESPONSE: ', response)
 
     setSafeAuthSignInResponse(response)
     setSelectedSafe(response?.safes?.[0] || '')
-    setProvider(safeAuth.getProvider() as SafeEventEmitterProvider)
+    setProvider(web3AuthModalPack.getProvider() as SafeEventEmitterProvider)
     setIsLoggedIn(true)
   }
 
   const logOut = async () => {
-    if (!safeAuth) return
+    if (!web3AuthModalPack) return
 
-    await safeAuth.signOut()
+    await web3AuthModalPack.signOut()
 
     setProvider(undefined)
     setSafeAuthSignInResponse(undefined)
