@@ -1,0 +1,3 @@
+[submodule "zodiac"]
+	path = solidity-forge/lib/zodiac
+	url = https://github.com/gnosis/zodiac
