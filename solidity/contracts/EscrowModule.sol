@@ -17,8 +17,8 @@ contract EscrowModule is Module {
 
     using SafeERC20 for IERC20;
 
-    address public rampController;
-    address public rampManager;
+    address private rampController;
+    address private rampManager;
 
     constructor(address _fundSafe, address _rampController, address _rampManager) {
         bytes memory initializeParams = abi.encode(_fundSafe, _rampController, _rampManager);
@@ -61,15 +61,14 @@ contract EscrowModule is Module {
     //@todo allow this to be called by anyone after a certain amount of time & a reimbursement of gas using maker's fee
     function releaseFunds(uint256 _orderIndex) external onlyController {
         //@todo validate the order actually exists;
-        Order memory order = IRampManager(rampManager).orders[_orderIndex];
-        require(!order.complete, "order is completed");
+        Order memory order = IRampManager(rampManager).getOrder(_orderIndex);
+        require(!order.complete, "order already completed");
         //@todo increment noun volume logic
         //@todo check status of monerium transfer using chainlink functions using the monerium order id;
         IERC20(order.requestedAsset).safeApprove(this.avatar(), order.requestedAmount);
         IERC20(order.requestedAsset).safeTransfer(this.avatar(), order.requestedAmount);
-        order.complete = true;
-        //@todo update the state of the order
-        IRampManager(rampManager).orders[_orderIndex] = order;
+        //@todo how to only allow escrow modules to complete these orders?
+        IRampManager(rampManager).completeOrder(_orderIndex, order);
     }
 
     // @audit 1inch swap
