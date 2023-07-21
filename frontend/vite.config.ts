@@ -14,7 +14,8 @@ export default defineConfig({
     include: [
       '@safe-global/protocol-kit',
       '@safe-global/api-kit',
-      '@safe-global/safe-core-sdk-types'
+      '@safe-global/safe-core-sdk-types',
+      '@safe-global/onramp-kit'
     ],
     esbuildOptions: {
       define: {
@@ -35,7 +36,7 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      '@safe-global/onramp-kit': path.resolve(__dirname, '../../src')
+      // '@safe-global/onramp-kit': path.resolve(__dirname, '../../src')
     }
   }
 })
