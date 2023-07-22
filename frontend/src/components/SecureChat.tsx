@@ -76,7 +76,7 @@ const SecureChat = ({ isOpen, orderID, peerNickname, peer, onClose }: SecureChat
                     <TextField
                         type="text"
                         variant="outlined"
-                        placeholder="Hello..."
+                        placeholder="Type here..."
                         value={text}
                         onKeyDown={(e) => e.key === 'Enter' && onSend()}
                         onChange={(e) => setText(e.target.value)}

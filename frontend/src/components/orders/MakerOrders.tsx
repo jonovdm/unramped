@@ -10,7 +10,10 @@ import ConnectedWalletLabel from '../connected-wallet-label/ConnectedWalletLabel
 import Noun from '../noun/Noun'
 import MessageIcon from '@mui/icons-material/Message';
 import EuroIcon from '@mui/icons-material/Euro';
+import AutoAwesomeOutlinedIcon from '@mui/icons-material/AutoAwesomeOutlined';
+import ReviewsOutlinedIcon from '@mui/icons-material/ReviewsOutlined';
 import Tooltip from '@mui/material/Tooltip'
+import OrderModal from './CreateOrder';
 
 const isSessionValid = (sessionId: string) => sessionId.length === 28;
 const orders = [
@@ -36,6 +39,22 @@ const orders = [
 function MakerOrders() {
     const [messagingWith, setMessagingWith] = useState<{ peer: string, product: null }>();
     const [createOrder, setCreateOrder] = useState<{}>();
+    const [viewReview, setViewReview] = useState<{}>();
+
+    const [isModalOpen, setModalOpen] = useState(false);
+
+    const handleModalOpen = () => {
+        setModalOpen(true);
+    };
+
+    const handleModalClose = () => {
+        setModalOpen(false);
+    };
+
+    const handleOrderSubmit = (formData: any) => {
+        // Process the order data here (e.g., submit it to a server)
+        console.log('Order data:', formData);
+    };
 
     useEffect(() => {
         ; (async () => {
@@ -52,6 +71,11 @@ function MakerOrders() {
 
     return (
         <Box sx={{ padding: '2rem' }}>
+            <OrderModal
+                open={isModalOpen}
+                onClose={handleModalClose}
+                onSubmit={handleOrderSubmit}
+            />
             <Grid container alignItems="center" spacing={2}>
                 {/* Image on the left */}
                 <Grid item xs={6} md={2} sx={{ maxWidth: '250px' }}> {/* Set the maximum width to 250px */}
@@ -68,7 +92,7 @@ function MakerOrders() {
                         <h2>Total Volume: 110,201 EURe</h2>
                         <h3>Total Orders: 100</h3>
                         <h3>Rating: 3/5</h3>
-                        <Button variant="contained" onClick={() => setCreateOrder({})}>
+                        <Button variant="contained" onClick={handleModalOpen}>
                             Create Order
                         </Button>
                     </Stack>
@@ -119,6 +143,11 @@ function MakerOrders() {
                                     <Tooltip title="Pay Buyer">
                                         <ExtraIconButton onClick={() => setCreateOrder({})}>
                                             <EuroIcon fontSize="medium" />
+                                        </ExtraIconButton>
+                                    </Tooltip>
+                                    <Tooltip title="View Review">
+                                        <ExtraIconButton onClick={() => setViewReview({})}>
+                                            <AutoAwesomeOutlinedIcon fontSize="medium" />
                                         </ExtraIconButton>
                                     </Tooltip>
                                 </TableCell>

@@ -29,6 +29,9 @@ const AppBar = () => {
         <Link to={`/orders`} component={RouterLink} pl={2} sx={{ textDecoration: 'none' }}>
           Orders
         </Link>
+        <Link to={`/history`} component={RouterLink} pl={2} sx={{ textDecoration: 'none' }}>
+          History
+        </Link>
       </nav>
       <Box mr={5} display="flex" justifyContent="flex-end" alignItems="center" width="100%">
         {isLoggedIn ? (

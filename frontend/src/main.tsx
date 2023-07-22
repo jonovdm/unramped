@@ -27,6 +27,10 @@ const router = createBrowserRouter([
         element: <XMTPProvider><MakerOrders /></XMTPProvider>
       },
       {
+        path: '/history',
+        element: <MakerOrders />
+      },
+      {
         path: 'monerium',
         element: <Monerium />
       },
