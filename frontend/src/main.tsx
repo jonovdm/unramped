@@ -4,7 +4,7 @@ import { ThemeProvider, CssBaseline } from '@mui/material'
 import { SafeThemeProvider } from '@safe-global/safe-react-components'
 
 import Stripe from './components/Stripe'
-import Orders from './components/orders/Orders'
+import MakerOrders from './components/orders/MakerOrders'
 import Monerium from './components/monerium/Monerium'
 import App from './App'
 
@@ -24,7 +24,7 @@ const router = createBrowserRouter([
       },
       {
         path: '/orders',
-        element: <XMTPProvider><Orders /></XMTPProvider>
+        element: <XMTPProvider><MakerOrders /></XMTPProvider>
       },
       {
         path: 'monerium',

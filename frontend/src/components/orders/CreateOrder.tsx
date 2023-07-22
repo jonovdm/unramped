@@ -1,11 +1,8 @@
-import styled from '@emotion/styled'
-import { Theme } from '@mui/material'
 import { useEffect, useState, useRef } from 'react'
 import { ethers } from 'ethers'
 import { Grid, TextField, Button } from '@mui/material'
-import { Box, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from '@mui/material';
+import { Box, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material';
 import SecureChat from '../../components/SecureChat';
-import ConnectedWalletLabel from '../../components/connected-wallet-label/ConnectedWalletLabel'
 
 const isSessionValid = (sessionId: string) => sessionId.length === 28;
 const orders = [
@@ -91,32 +88,27 @@ function Orders() {
                 </Table>
             </TableContainer>
 
-
-            <Box display="flex" gap={3}>
-                {/* safe Account */}
-                <ConnectedContainer>
-                    <Typography fontWeight="700">Safe Account</Typography>
-
-                    <Typography fontSize="14px" marginTop="8px" marginBottom="32px">
-                        Your Safe account (Smart Contract) holds and protects your assets.
-                    </Typography>
-
-                    {/* Safe Info */}
-                    {/* {safeSelected && <SafeInfo safeAddress={safeSelected} chainId={chainId} />} */}
-                </ConnectedContainer>
-
-                {/* owner ID */}
-                <ConnectedContainer>
-                    <Typography fontWeight="700">Owner ID</Typography>
-
-                    <Typography fontSize="14px" marginTop="8px" marginBottom="32px">
-                        Your Owner account signs transactions to unlock your assets.
-                    </Typography>
-
-                    {/* Owner details */}
-                    <ConnectedWalletLabel />
-                </ConnectedContainer>
-            </Box>
+            <h1>Previous Orders</h1>
+            <TableContainer component={Paper}>
+                <Table>
+                    <TableHead>
+                        <TableRow>
+                            <TableCell>ID</TableCell>
+                            <TableCell>Name</TableCell>
+                            <TableCell>Price</TableCell>
+                        </TableRow>
+                    </TableHead>
+                    <TableBody>
+                        {orders.map((order) => (
+                            <TableRow key={order.id}>
+                                <TableCell>{order.id}</TableCell>
+                                <TableCell>{order.name}</TableCell>
+                                <TableCell>{order.price}</TableCell>
+                            </TableRow>
+                        ))}
+                    </TableBody>
+                </Table>
+            </TableContainer>
         </Box>
         // <Grid container height="80vh">
         //     <Grid item sm={12} md={4} p={2} sx={{ borderRight: `1px solid #303030` }}>
@@ -149,37 +141,5 @@ function Orders() {
         // </Grid>
     )
 }
-
-const ConnectContainer = styled(Box)<{
-    theme?: Theme
-}>(
-    ({ theme }) => `
-  
-  border-radius: 10px;
-  border: 1px solid ${theme.palette.border.light};
-  padding: 50px;
-`
-)
-
-const CodeContainer = styled(Box)<{
-    theme?: Theme
-}>(
-    ({ theme }) => `
-  border-radius: 10px;
-  border: 1px solid ${theme.palette.border.light};
-  padding: 16px;
-`
-)
-
-const ConnectedContainer = styled(Box)<{
-    theme?: Theme
-}>(
-    ({ theme }) => `
-  
-  border-radius: 10px;
-  border: 1px solid ${theme.palette.border.light};
-  padding: 40px 32px;
-`
-)
 
 export default Orders
