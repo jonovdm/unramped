@@ -5,6 +5,31 @@ import { CHAIN_NAMESPACES, SafeEventEmitterProvider, WALLET_ADAPTERS } from '@we
 // push changes upstream to safe-core-sdk
 import { AuthKitSignInData, Web3AuthModalPack, Web3AuthEventListener } from '@safe-global/auth-kit'
 
+export const polygonChain = {
+  id: '0x89',
+  token: 'matic',
+  shortName: 'matic',
+  label: 'Polygon',
+  rpcUrl: 'https://polygon-rpc.com',
+  blockExplorerUrl: 'https://polygonscan.com',
+  color: '#8248E5',
+  transactionServiceUrl: 'https://safe-transaction-polygon.safe.global',
+  isStripePaymentsEnabled: false
+}
+
+export const mumbaiChain = {
+  id: '0x13881',
+  token: 'matic',
+  shortName: 'matic',
+  label: 'Mumbai',
+  rpcUrl: 'https://rpc-mumbai.maticvigil.com/',
+  blockExplorerUrl: 'https://mumbai.polygonscan.com',
+  color: '#8248E5',
+  isStripePaymentsEnabled: true,
+  faucetUrl: 'https://mumbaifaucet.com/'
+}
+
+
 type AuthContextProviderProps = {
   children: React.ReactNode
 }
@@ -99,6 +124,8 @@ const AuthProvider = ({ children }: AuthContextProviderProps) => {
     setProvider(undefined)
     setSafeAuthSignInResponse(undefined)
     setIsLoggedIn(false)
+    localStorage.removeItem("worldcoinHash")
+    localStorage.removeItem("worldcoinReqBody")
   }
 
   return (

@@ -9,7 +9,7 @@ import Monerium from './components/monerium/Monerium'
 import App from './App'
 
 import './index.css'
-import WorldCoin from './components/worldcoin/WorldCoin'
+import WorldCoin from './components/worldcoin/WCLogin'
 import { XMTPProvider } from './contexts/xmtpContext';
 
 const router = createBrowserRouter([
