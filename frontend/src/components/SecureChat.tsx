@@ -56,21 +56,40 @@ const SecureChat = ({ isOpen, orderID, peerNickname, peer, onClose }: SecureChat
 
     return (
         <Modal open={isOpen} onClose={onClose}>
-            <Paper>
-                <Typography variant="h6" sx={{ m: 2 }}>{"Order ID: " + orderID}</Typography>
+            <Paper sx={{ position: 'fixed', bottom: '20px', right: '20px', maxWidth: '400px', width: '100%', maxHeight: '80%', overflowY: 'auto' }}>
+                <Typography variant="h3" fontWeight={900}>
+                    {"Order ID: " + orderID}
+                </Typography>
                 <Stack sx={{ m: 2 }}>
-                    {
-                        messages.filter(
-                            (v, i, a) => a.findIndex((t) => t.id === v.id) === i
-                        ).map((msg) => (
-                            <Stack key={`chatmsg-${msg.id}`} direction="row" justifyContent="center" alignItems="center" sx={{ m: 2 }}>
-                                <Typography variant="body1" sx={{ fontWeight: 'bold' }}>
-                                    {msg.senderAddress.toLowerCase() === peer.toLowerCase() ? peerNickname : 'You'}
+                    {messages
+                        .filter((v, i, a) => a.findIndex((t) => t.id === v.id) === i)
+                        .map((msg) => (
+                            <Stack
+                                key={`chatmsg-${msg.id}`}
+                                direction="row"
+                                justifyContent={
+                                    msg.senderAddress.toLowerCase() === peer.toLowerCase()
+                                        ? 'flex-start' // Left-align text for received messages
+                                        : 'flex-end' // Right-align text for sent messages
+                                }
+                                alignItems="center"
+                                sx={{
+                                    m: 2,
+                                    borderRadius: '8px', // Rounded corners for chat bubbles
+                                    backgroundColor:
+                                        msg.senderAddress.toLowerCase() === peer.toLowerCase()
+                                            ? '#E8E8E8' // Received message bubble color
+                                            : '#DCF8C6', // Sent message bubble color
+                                    padding: '8px',
+                                    maxWidth: '80%',
+                                }}
+                            >
+                                <Typography variant="body1" sx={{ fontWeight: 'bold', mr: 1 }}>
+                                    {msg.senderAddress.toLowerCase() === peer.toLowerCase() ? peerNickname + ': ' : 'You: '}
                                 </Typography>
                                 <Typography variant="body1">{msg.content}</Typography>
                             </Stack>
-                        ))
-                    }
+                        ))}
                 </Stack>
                 <Stack direction="row" justifyContent="center" alignItems="center" sx={{ m: 2 }}>
                     <TextField

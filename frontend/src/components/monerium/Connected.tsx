@@ -9,6 +9,7 @@ import {
   Dialog,
   DialogContent,
   DialogTitle,
+  Typography,
   DialogActions,
 } from '@mui/material'
 
@@ -49,8 +50,13 @@ function Connected({ authContext, orderState, safe, onLogout, onTransfer, open, 
   return (
     <>
       <Dialog open={open} onClose={handleDialogClose}>
-        <DialogTitle>Settle Order</DialogTitle>
+        <DialogTitle>
+          <Typography variant="h3" fontWeight={900}>
+            Transfer Euros
+          </Typography>
+        </DialogTitle>
         <DialogContent>
+          <p>Please contact the buyer via XMTP to get their IBAN.</p>
           <p>Email: {authContext.email}</p>
           <p>User Id: {authContext.userId}</p>
           <p>Default profile: {authContext.defaultProfile}</p>

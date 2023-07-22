@@ -19,13 +19,10 @@ const AppBar = () => {
 
   return (
     <StyledAppBar position="static" color="default">
-      <Typography variant="h3" pl={3} fontWeight={700}>
+      <Typography variant="h1" pl={3} fontWeight={900}>
         Unramped
       </Typography>
       <nav>
-        <Link to={`/monerium`} component={RouterLink} pl={2} sx={{ textDecoration: 'none' }}>
-          Account
-        </Link>
         <Link to={`/orders`} component={RouterLink} pl={2} sx={{ textDecoration: 'none' }}>
           Orders
         </Link>
