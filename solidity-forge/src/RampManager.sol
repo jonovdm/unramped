@@ -52,7 +52,7 @@ contract RampManager {
     }
 
     modifier onlyMaker(address _escrow) {
-        // require(msg.sender == IEscrowModule(_escrow).avatar(), "!maker");
+        require(msg.sender == IEscrowModule(_escrow).avatar(), "!maker");
         _;
     }
 
@@ -80,8 +80,9 @@ contract RampManager {
         return _orders[_orderID];
     }
 
+    //@dev this would be called by the escrow module
     function completeOrder(bytes32 _orderID) external {
-        //@todo validate that the user is an actual escrow module that owns the order
+        //validate that the user is an actual escrow module that owns the order
         //@todo validate that it actually exists?
         Order memory order = _orders[_orderID];
         require(msg.sender == order.escrow, "!escrow");
@@ -89,27 +90,22 @@ contract RampManager {
         _orders[_orderID] = order;
     }
 
-    function onboardMaker(address _escrow, uint256 root, uint256 _nullifierHash, uint256[8] calldata proof) public {
+    function onboardMaker(address _escrow, uint256 root, uint256 _nullifierHash, uint256[8] calldata proof)
+        external
+        onlyMaker(_escrow)
+    {
         //@todo deploy & enable the module here?
         //@todo validate if msg.sender is allowed
         require(_nullifierHashs[_escrow] == 0, "nullifierHash already exists");
         require(_escrowModules[_nullifierHash] == address(0), "escrow module already exists");
-        //@todo finish chainlink fns params
-        require(_checkWorldID() == _nullifierHash, "sry u are not the worldcoin user lol");
         // set both nullifierhash & escrow modules
         _escrowModules[_nullifierHash] = _escrow;
         _nullifierHashs[_escrow] = _nullifierHash;
         // IEscrowModule(_escrow).activateModule();
         //@todo ensure the maker has set up a monerium account?
-        //@todo add noun setup here, if we have time?
         _worldId.verifyProof(
             root, 1, abi.encodePacked(msg.sender).hashToField(), _nullifierHash, _externalNullifier, proof
         );
-    }
-
-    //@todo logic to check the chainlink functions worldid status
-    function _checkWorldID() internal returns (uint256) {
-        //@todo insert chainlink functions call here
     }
 
     function createOrder(
@@ -136,6 +132,7 @@ contract RampManager {
         // uint256[] acceptedChains;
         // address taker;
         // uint256 takerChain;
+        //@todo need to clean up
         Order memory order = Order(
             orderID,
             _escrow,
@@ -159,9 +156,8 @@ contract RampManager {
         Order memory order = _orders[_orderID];
         IERC20 requestedAsset = IERC20(order.requestedAsset);
         require(msg.sender != IEscrowModule(order.escrow).avatar(), "you are the maker");
+        require(_nullifierHashs[order.escrow] != _nullifierHash, "you are the maker");
         require(requestedAsset.balanceOf(msg.sender) >= order.requestedAmount, "Need moar monies");
-        //@todo finish params for this
-        require(_checkWorldID() == _nullifierHash, "sry u are not the worldcoin user lol");
         // require(_order == _order.);
         // send the tokens to the escrow module
         IERC20(order.requestedAsset).safeApprove(order.escrow, order.requestedAmount);

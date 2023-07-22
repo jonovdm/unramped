@@ -36,8 +36,8 @@ contract EscrowModule is Module {
         rampController = _rampController;
         rampManager = _rampManager;
         functionsConsumer = FunctionsConsumer(_functionsConsumer);
+        // assign noun
         dataURI = nounsLib.generateSVG(0, address(this));
-        //@todo if the chain is polygon, worldcoin id needs to be activated
     }
 
     modifier onlyController() {
@@ -80,7 +80,7 @@ contract EscrowModule is Module {
     }
 
     //@todo allow this to be called by anyone after a minute certain amount of time & a reimbursement of gas using maker's fee
-    function releaseFunds(bytes32 _orderID) external onlyController {
+    function releaseFunds(bytes32 _orderID) public {
         //@todo validate the order actually exists;
         IRampManager.Order memory order = IRampManager(rampManager).getOrder(_orderID);
         require(!order.complete, "order already completed");
@@ -90,14 +90,9 @@ contract EscrowModule is Module {
         require(_checkMoneriumOrder() == "1", "sry order not processed");
         IERC20(order.requestedAsset).safeApprove(this.avatar(), order.requestedAmount);
         IERC20(order.requestedAsset).safeTransfer(this.avatar(), order.requestedAmount);
-        //@todo how to only allow escrow modules to complete these orders?
         IRampManager(rampManager).completeOrder(_orderID);
     }
 
     //@todo 1inch swap
     function swapFunds() public {}
-
-    //@todo assigns a soulbound noun to the escrowModule
-    //@todo verifyproof of worldcoin id
-    function activateModule() external onlyRampManager {}
 }
