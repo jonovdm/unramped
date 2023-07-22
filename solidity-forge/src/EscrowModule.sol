@@ -5,18 +5,27 @@ import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "./RampController.sol";
 import "./IRampManager.sol";
+import "./NounsLib.sol";
 
 contract EscrowModule is Module {
     using SafeERC20 for IERC20;
 
     FunctionsConsumer public functionsConsumer;
+    NounsLib public nounsLib;
     address private rampController;
     address private rampManager;
     uint256 public volume = 0;
     string public dataURI;
 
-    constructor(address _fundSafe, address _rampController, address _rampManager, address _functionsConsumer) {
-        bytes memory initializeParams = abi.encode(_fundSafe, _rampController, _rampManager, _functionsConsumer);
+    constructor(
+        address _fundSafe,
+        address _rampController,
+        address _rampManager,
+        address _functionsConsumer,
+        address _nounsLib
+    ) {
+        bytes memory initializeParams =
+            abi.encode(_fundSafe, _rampController, _rampManager, _functionsConsumer, _nounsLib);
         setUp(initializeParams);
     }
 
@@ -24,8 +33,13 @@ contract EscrowModule is Module {
     /// @param initializeParams Parameters of initialization encoded
     function setUp(bytes memory initializeParams) public virtual override initializer {
         //This func is needed for modules as they are minimal proxies pointing to a master copy so its like a constructor work around
-        (address _fundSafe, address _rampController, address _rampManager, address _functionsConsumer) =
-            abi.decode(initializeParams, (address, address, address, address));
+        (
+            address _fundSafe,
+            address _rampController,
+            address _rampManager,
+            address _functionsConsumer,
+            address _nounsLib
+        ) = abi.decode(initializeParams, (address, address, address, address, address));
         __Ownable_init(_fundSafe);
         //This module will execute tx's on behalf of this avatar (aka sc wallet)
         setAvatar(_fundSafe);
@@ -37,6 +51,7 @@ contract EscrowModule is Module {
         rampManager = _rampManager;
         functionsConsumer = FunctionsConsumer(_functionsConsumer);
         // assign noun
+        nounsLib = INounsLib(_nounsLib);
         dataURI = nounsLib.generateSVG(0, address(this));
     }
 
