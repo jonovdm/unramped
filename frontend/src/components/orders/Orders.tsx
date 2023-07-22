@@ -1,9 +1,11 @@
+import styled from '@emotion/styled'
+import { Theme } from '@mui/material'
 import { useEffect, useState, useRef } from 'react'
 import { ethers } from 'ethers'
 import { Grid, TextField, Button } from '@mui/material'
-import { Box, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material';
-
-import { StripeSession, StripePack } from '@safe-global/onramp-kit'
+import { Box, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from '@mui/material';
+import SecureChat from '../../components/SecureChat';
+import ConnectedWalletLabel from '../../components/connected-wallet-label/ConnectedWalletLabel'
 
 const isSessionValid = (sessionId: string) => sessionId.length === 28;
 const orders = [
@@ -11,87 +13,110 @@ const orders = [
     { id: 2, name: 'Order 2', price: 15 },
     { id: 3, name: 'Order 3', price: 20 },
 ];
-const OrdersRow = () => (
-    <TableContainer component={Paper}>
-        <Table>
-            <TableHead>
-                <TableRow>
-                    <TableCell>ID</TableCell>
-                    <TableCell>Name</TableCell>
-                    <TableCell>Price</TableCell>
-                </TableRow>
-            </TableHead>
-            <TableBody>
-                {orders.map((order) => (
-                    <TableRow key={order.id}>
-                        <TableCell>{order.id}</TableCell>
-                        <TableCell>{order.name}</TableCell>
-                        <TableCell>{order.price}</TableCell>
-                    </TableRow>
-                ))}
-            </TableBody>
-        </Table>
-    </TableContainer>
-);
 
 function Orders() {
-    const [walletAddress, setWalletAddress] = useState<string>('')
-    const [sessionId, setSessionId] = useState<string>('')
-    const [stripePack, setStripePack] = useState<StripePack>()
-    const stripeRootRef = useRef<HTMLDivElement>(null)
-
-    const handleCreateSession = async () => {
-        if (!isSessionValid(sessionId) && !ethers.utils.isAddress(walletAddress)) return
-
-        if (stripeRootRef.current) {
-            stripeRootRef.current.innerHTML = ''
-        }
-
-        const sessionData = (await stripePack?.open({
-            element: '#stripe-root',
-            sessionId: sessionId,
-            theme: 'light',
-            defaultOptions: {
-                transaction_details: {
-                    wallet_address: walletAddress,
-                    supported_destination_networks: ['ethereum', 'polygon'],
-                    supported_destination_currencies: ['usdc'],
-                    lock_wallet_address: true
-                },
-                customer_information: {
-                    email: 'john@doe.com'
-                }
-            }
-        })) as StripeSession
-
-        stripePack?.subscribe('onramp_ui_loaded', () => {
-            console.log('UI loaded')
-        })
-
-        stripePack?.subscribe('onramp_session_updated', (e) => {
-            console.log('Session Updated', e.payload)
-        })
-
-        setWalletAddress(sessionData?.transaction_details?.wallet_address || '')
-    }
+    const [messagingWith, setMessagingWith] = useState<{ peer: string, product: null }>();
+    const [createOrder, setCreateOrder] = useState<{}>();
 
     useEffect(() => {
         ; (async () => {
-            const pack = new StripePack({
-                stripePublicKey: import.meta.env.VITE_STRIPE_PUBLIC_KEY,
-                onRampBackendUrl: import.meta.env.VITE_SAFE_STRIPE_BACKEND_BASE_URL
-            })
+            // const pack = new StripePack({
+            //     stripePublicKey: import.meta.env.VITE_STRIPE_PUBLIC_KEY,
+            //     onRampBackendUrl: import.meta.env.VITE_SAFE_STRIPE_BACKEND_BASE_URL
+            // })
 
-            await pack.init()
+            // await pack.init()
 
-            setStripePack(pack)
+            // setStripePack(pack)
         })()
     }, [])
 
     return (
         <Box sx={{ padding: '2rem' }}>
+            <Button variant="contained" onClick={() => setMessagingWith({ peer: "0x66c58e1E3437d64818d7bE00f30CcDF4C859eADf", product: null })}>
+                Message 0x66
+            </Button>
+            <Button variant="contained" onClick={() => setCreateOrder({})}>
+                Create Order
+            </Button>
+            {messagingWith && (<SecureChat
+                orderID={"Message 0x66"}
+                peer={messagingWith?.peer || ""}
+                isOpen={!!messagingWith}
+                onClose={() => setMessagingWith(undefined)}
+                isLoading={false}
+                peerNickname="Maker"
+            />)
+            }
+            <h1>Active Orders</h1>
+            <TableContainer component={Paper}>
+                <Table>
+                    <TableHead>
+                        <TableRow>
+                            <TableCell>ID</TableCell>
+                            <TableCell>Name</TableCell>
+                            <TableCell>Price</TableCell>
+                        </TableRow>
+                    </TableHead>
+                    <TableBody>
+                        {orders.map((order) => (
+                            <TableRow key={order.id}>
+                                <TableCell>{order.id}</TableCell>
+                                <TableCell>{order.name}</TableCell>
+                                <TableCell>{order.price}</TableCell>
+                            </TableRow>
+                        ))}
+                    </TableBody>
+                </Table>
+            </TableContainer>
             <h1>Orders</h1>
-            <OrdersRow />
+            <TableContainer component={Paper}>
+                <Table>
+                    <TableHead>
+                        <TableRow>
+                            <TableCell>ID</TableCell>
+                            <TableCell>Name</TableCell>
+                            <TableCell>Price</TableCell>
+                        </TableRow>
+                    </TableHead>
+                    <TableBody>
+                        {orders.map((order) => (
+                            <TableRow key={order.id}>
+                                <TableCell>{order.id}</TableCell>
+                                <TableCell>{order.name}</TableCell>
+                                <TableCell>{order.price}</TableCell>
+                            </TableRow>
+                        ))}
+                    </TableBody>
+                </Table>
+            </TableContainer>
+
+
+            <Box display="flex" gap={3}>
+                {/* safe Account */}
+                <ConnectedContainer>
+                    <Typography fontWeight="700">Safe Account</Typography>
+
+                    <Typography fontSize="14px" marginTop="8px" marginBottom="32px">
+                        Your Safe account (Smart Contract) holds and protects your assets.
+                    </Typography>
+
+                    {/* Safe Info */}
+                    {/* {safeSelected && <SafeInfo safeAddress={safeSelected} chainId={chainId} />} */}
+                </ConnectedContainer>
+
+                {/* owner ID */}
+                <ConnectedContainer>
+                    <Typography fontWeight="700">Owner ID</Typography>
+
+                    <Typography fontSize="14px" marginTop="8px" marginBottom="32px">
+                        Your Owner account signs transactions to unlock your assets.
+                    </Typography>
+
+                    {/* Owner details */}
+                    <ConnectedWalletLabel />
+                </ConnectedContainer>
+            </Box>
         </Box>
         // <Grid container height="80vh">
         //     <Grid item sm={12} md={4} p={2} sx={{ borderRight: `1px solid #303030` }}>
@@ -124,5 +149,37 @@ function Orders() {
         // </Grid>
     )
 }
+
+const ConnectContainer = styled(Box)<{
+    theme?: Theme
+}>(
+    ({ theme }) => `
+  
+  border-radius: 10px;
+  border: 1px solid ${theme.palette.border.light};
+  padding: 50px;
+`
+)
+
+const CodeContainer = styled(Box)<{
+    theme?: Theme
+}>(
+    ({ theme }) => `
+  border-radius: 10px;
+  border: 1px solid ${theme.palette.border.light};
+  padding: 16px;
+`
+)
+
+const ConnectedContainer = styled(Box)<{
+    theme?: Theme
+}>(
+    ({ theme }) => `
+  
+  border-radius: 10px;
+  border: 1px solid ${theme.palette.border.light};
+  padding: 40px 32px;
+`
+)
 
 export default Orders

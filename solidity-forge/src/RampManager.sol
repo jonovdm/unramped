@@ -38,9 +38,17 @@ contract RampManager {
     // mapping(address => mapping(uint256 => Order)) public orders;
     // mapping(address => uint256) public ordersIndex;
 
-    constructor(address _baseAsset) {
+    /// @dev The World ID instance that will be used for verifying proofs
+    IWorldID internal immutable worldId;
+
+    /// @dev The contract's external nullifier hash
+    uint256 internal immutable externalNullifier;
+
+    constructor(IWorldID _worldId, string memory _appId, string memory _actionId, address _baseAsset) {
         // define the base asset => EURe
         baseAsset = IERC20(_baseAsset);
+        worldId = _worldId;
+        externalNullifier = abi.encodePacked(abi.encodePacked(_appId).hashToField(), _actionId).hashToField();
     }
 
     modifier onlyMaker(address _escrow) {
@@ -81,7 +89,8 @@ contract RampManager {
         _orders[_orderID] = order;
     }
 
-    function onboardMaker(address _escrow, uint256 _nullifierHash) public {
+    function onboardMaker(address _escrow, uint256 root, uint256 _nullifierHash, uint256[8] calldata proof) public {
+        //@todo deploy & enable the module here?
         //@todo validate if msg.sender is allowed
         require(_nullifierHashs[_escrow] == 0, "nullifierHash already exists");
         require(_escrowModules[_nullifierHash] == address(0), "escrow module already exists");
@@ -90,15 +99,12 @@ contract RampManager {
         // set both nullifierhash & escrow modules
         _escrowModules[_nullifierHash] = _escrow;
         _nullifierHashs[_escrow] = _nullifierHash;
-        // IEscrowModule(_escrow).;
+        // IEscrowModule(_escrow).activateModule();
         //@todo ensure the maker has set up a monerium account?
         //@todo add noun setup here, if we have time?
-    }
-
-    //@todo execute request so chainlink goes to verify the worldID
-    //@todo logic to verify the worldcoin id using chainlink functions
-    function verifyWorldID() external {
-        //@todo insert chainlink functions call here
+        _worldId.verifyProof(
+            root, 1, abi.encodePacked(msg.sender).hashToField(), _nullifierHash, _externalNullifier, proof
+        );
     }
 
     //@todo logic to check the chainlink functions worldid status

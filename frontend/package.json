@@ -12,6 +12,7 @@
     "@emotion/react": "^11.10.5",
     "@emotion/styled": "^11.10.5",
     "@monerium/sdk": "^2.3.0",
+    "@mui/icons-material": "^5.14.1",
     "@mui/material": "^5.11.7",
     "@safe-global/api-kit": "^1.2.0",
     "@safe-global/auth-kit": "^1.1.0",
