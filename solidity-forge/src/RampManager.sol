@@ -20,6 +20,7 @@ contract RampManager {
         bool complete;
         uint256[] acceptedChains;
         address taker;
+        bytes32 takerIBAN;
         uint256 takerChain;
     }
 
@@ -162,4 +163,7 @@ contract RampManager {
         order.taker = msg.sender;
         _orders[_orderID] = order;
     }
+
+    //@todo allow the order to be cancelled if the monerium transfer doesn't happen after 1 hour
+    function cancelOrder(bytes32 _orderID) external {}
 }

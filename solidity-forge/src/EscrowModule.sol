@@ -32,6 +32,7 @@ contract EscrowModule is Module {
         // define the unramped controller
         rampController = _rampController;
         rampManager = _rampManager;
+        //@todo if the chain is polygon, worldcoin id needs to be activated
     }
 
     modifier onlyController() {
@@ -50,8 +51,10 @@ contract EscrowModule is Module {
         rampController = _newController;
     }
 
+    // this will run executeRequest on the chainlink function
     function verifyMoneriumOrder() external {}
 
+    // this will get the result of the chainlink function
     function _checkMoneriumOrder() internal returns (uint256) {
         // retu
     }
@@ -70,12 +73,10 @@ contract EscrowModule is Module {
         IRampManager(rampManager).completeOrder(_orderID);
     }
 
-    // allow the order to be cancelled if the monerium transfer doesn't happen after 1 hour
-    function cancelOrder(bytes32 _orderID) external {}
-
-    // @audit 1inch swap
+    //@todo 1inch swap
     function swapFunds() public {}
 
-    // assigns a soulbound noun to the escrowModule
+    //@todo assigns a soulbound noun to the escrowModule
+    //@todo verifyproof of worldcoin id
     function activateModule() external onlyRampManager {}
 }
