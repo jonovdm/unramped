@@ -3,17 +3,27 @@ pragma solidity ^0.8.13;
 
 import "forge-std/Test.sol";
 import "../src/EscrowModule.sol";
-import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import "../src/IEscrowModule.sol";
+import "../src/RampManager.sol";
+import "../src/IRampManager.sol";
+import "../src/MockSafe.sol";
+import "forge-std/console.sol";
+
+import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 contract CounterTest is Test {
-    Counter public counter;
+    // Counter public counter;
 
     function setUp() public {
-        eure = new SafeERC20();
-        rampController = new RampController();
-        rampManager = new RampManager(eure.address);
-        safe = new MockSafe();
-        escrow = new EscrowModule(safe.address, rampController.address, rampManager.address);
+        IERC20 eure = new ERC20("name", "symbol");
+        console.log(eure.totalSupply());
+        RampManager rampManager = new RampManager(address(1));
+        // console.log(rampManager.getChainID());
+        // console.logBytes32(rampManager.createStr("x", uint256(2), address(1)));
+        // console.log(rampManager.createStr("x", uint256(1), address(1)));
+        MockSafe safe = new MockSafe();
+        // IEscrowModule escrow = new EscrowModule(safe.address, rampController.address, rampManager.address);
     }
 
     function testIncrement() public {

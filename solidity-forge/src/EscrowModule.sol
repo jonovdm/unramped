@@ -3,29 +3,21 @@ pragma solidity 0.8.19;
 import "zodiac/core/Module.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-import "./RampController.sol";
 import "./IRampManager.sol";
-import "./NounsLib.sol";
+import "./INounsLib.sol";
+import "./IFunctionsConsumer.sol";
 
 contract EscrowModule is Module {
     using SafeERC20 for IERC20;
 
-    FunctionsConsumer public functionsConsumer;
-    NounsLib public nounsLib;
-    address private rampController;
+    IFunctionsConsumer public functionsConsumer;
+    INounsLib public nounsLib;
     address private rampManager;
     uint256 public volume = 0;
     string public dataURI;
 
-    constructor(
-        address _fundSafe,
-        address _rampController,
-        address _rampManager,
-        address _functionsConsumer,
-        address _nounsLib
-    ) {
-        bytes memory initializeParams =
-            abi.encode(_fundSafe, _rampController, _rampManager, _functionsConsumer, _nounsLib);
+    constructor(address _fundSafe, address _rampManager, address _functionsConsumer, address _nounsLib) {
+        bytes memory initializeParams = abi.encode(_fundSafe, _rampManager, _functionsConsumer, _nounsLib);
         setUp(initializeParams);
     }
 
@@ -33,31 +25,19 @@ contract EscrowModule is Module {
     /// @param initializeParams Parameters of initialization encoded
     function setUp(bytes memory initializeParams) public virtual override initializer {
         //This func is needed for modules as they are minimal proxies pointing to a master copy so its like a constructor work around
-        (
-            address _fundSafe,
-            address _rampController,
-            address _rampManager,
-            address _functionsConsumer,
-            address _nounsLib
-        ) = abi.decode(initializeParams, (address, address, address, address, address));
+        (address _fundSafe, address _rampManager, address _functionsConsumer, address _nounsLib) =
+            abi.decode(initializeParams, (address, address, address, address, address));
         __Ownable_init(_fundSafe);
         //This module will execute tx's on behalf of this avatar (aka sc wallet)
         setAvatar(_fundSafe);
         //Safe modules call on the Target contract (in our case its the safe too) so it to be set
         setTarget(_fundSafe);
         transferOwnership(_fundSafe);
-        // define the unramped controller
-        rampController = _rampController;
         rampManager = _rampManager;
-        functionsConsumer = FunctionsConsumer(_functionsConsumer);
+        functionsConsumer = IFunctionsConsumer(_functionsConsumer);
         // assign noun
         nounsLib = INounsLib(_nounsLib);
         dataURI = nounsLib.generateSVG(0, address(this));
-    }
-
-    modifier onlyController() {
-        require(msg.sender == rampController, "!controller");
-        _;
     }
 
     modifier onlyRampManager() {
@@ -65,17 +45,11 @@ contract EscrowModule is Module {
         _;
     }
 
-    function updateController(address _newController) external onlyController {
-        //@todo validation
-        //@todo review if this is needed, controller could just be an upgradable proxy
-        rampController = _newController;
-    }
-
     // this will run executeRequest on the chainlink function
-    function verifyMoneriumOrder(string calldata _source, string _orderId, uint64 _subscriptionId, uint32 _gasLimit)
+    function verifyMoneriumOrder(string calldata _source, bytes32 _orderId, uint64 _subscriptionId, uint32 _gasLimit)
         external
     {
-        string memory args = [orderId]; //@audit from memory this may cause issue potentially try push to a static sized array
+        string memory args = [_orderId]; //@audit from memory this may cause issue potentially try push to a static sized array
         bytes32 assignedReqID = functionsConsumer.executeRequest(_source, bytes(""), args, _subscriptionId, _gasLimit);
         //Types for executRequest
         // string calldata source,

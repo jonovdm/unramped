@@ -4,6 +4,7 @@ pragma solidity 0.8.19;
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "./IEscrowModule.sol";
+import "./IWorldID.sol";
 
 contract RampManager {
     using SafeERC20 for IERC20;
@@ -103,8 +104,8 @@ contract RampManager {
         _nullifierHashs[_escrow] = _nullifierHash;
         // IEscrowModule(_escrow).activateModule();
         //@todo ensure the maker has set up a monerium account?
-        _worldId.verifyProof(
-            root, 1, abi.encodePacked(msg.sender).hashToField(), _nullifierHash, _externalNullifier, proof
+        worldId.verifyProof(
+            root, 1, abi.encodePacked(msg.sender).hashToField(), _nullifierHash, externalNullifier, proof
         );
     }
 
