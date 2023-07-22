@@ -14,6 +14,9 @@ import AutoAwesomeOutlinedIcon from '@mui/icons-material/AutoAwesomeOutlined';
 import ReviewsOutlinedIcon from '@mui/icons-material/ReviewsOutlined';
 import Tooltip from '@mui/material/Tooltip'
 import OrderModal from './CreateOrder';
+import { AuthContext, Currency, OrderState, PaymentStandard } from '@monerium/sdk'
+
+import Monerium from '../../components/monerium/Monerium'
 
 import { useAuth } from '../../AuthContext'
 
@@ -42,8 +45,11 @@ function MakerOrders() {
     const [messagingWith, setMessagingWith] = useState<{ peer: string, product: null }>();
     const [createOrder, setCreateOrder] = useState<{}>();
     const [viewReview, setViewReview] = useState<{}>();
+    const [authContext, setAuthContext] = useState<AuthContext>()
+    const [order, setOrder] = useState<any>()
 
     const [isModalOpen, setModalOpen] = useState(false);
+    const [isTransferOpen, setTransferOpen] = useState(false);
     const { isLoggedIn, selectedSafe, provider: authProvider } = useAuth()
     const cumulativeVolume = BigNumber.from("1000000000000000000000")
 
@@ -53,6 +59,13 @@ function MakerOrders() {
 
     const handleModalClose = () => {
         setModalOpen(false);
+    };
+
+    const handleTransferOpen = (order: any) => {
+        setTransferOpen(true);
+    };
+    const handleTransferClose = () => {
+        setTransferOpen(false);
     };
 
     const handleOrderSubmit = (formData: any) => {
@@ -101,6 +114,14 @@ function MakerOrders() {
                         <Button variant="contained" onClick={handleModalOpen}>
                             Create Order
                         </Button>
+                        <Monerium
+                            authContext={authContext}
+                            setAuthContext={setAuthContext}
+                            isTransferOpen={isTransferOpen}
+                            setTransferClose={handleTransferClose}
+                            order={order}
+                            setOrder={setOrder}
+                        />
                     </Stack>
                 </Grid>
             </Grid>
@@ -147,7 +168,12 @@ function MakerOrders() {
                                         </ExtraIconButton>
                                     </Tooltip>
                                     <Tooltip title="Pay Buyer">
-                                        <ExtraIconButton onClick={() => setCreateOrder({})}>
+                                        {/* {authContext && (
+                                            <Button variant="contained" onClick={handleTransferOpen(order)}>
+                                                Transfer
+                                            </Button>
+                                        )} */}
+                                        <ExtraIconButton onClick={() => handleTransferOpen(order)}>
                                             <EuroIcon fontSize="medium" />
                                         </ExtraIconButton>
                                     </Tooltip>

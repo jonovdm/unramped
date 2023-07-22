@@ -10,15 +10,25 @@ import Disconnected from './Disconnected'
 import DeploySafe from './DeploySafe'
 import LoginWithMonerium from './LoginWithMonerium'
 import Connected from './Connected'
+import { Button, Typography } from '@mui/material'
 
 const MONERIUM_TOKEN = 'monerium_token'
 
-function Monerium() {
-  const [authContext, setAuthContext] = useState<AuthContext>()
+type LoginWithMoneriumProps = {
+  isTransferOpen: boolean
+  order: any
+  setOrder: (s: any) => void
+  setTransferClose: () => void
+  setAuthContext: (s: AuthContext | undefined) => void
+  authContext: AuthContext | undefined
+}
+
+function Monerium({ isTransferOpen, setTransferClose, setOrder, order, setAuthContext, authContext }: LoginWithMoneriumProps) {
   const [safeThreshold, setSafeThreshold] = useState<string>()
   const [moneriumClient, setMoneriumClient] = useState<SafeMoneriumClient>()
   const [moneriumPack, setMoneriumPack] = useState<MoneriumPack>()
   const [orderState, setOrderState] = useState<OrderState>()
+  // const [isTransferOpen, setTransferOpen] = useState(false);
   const { isLoggedIn, selectedSafe, provider: authProvider } = useAuth()
 
   useEffect(() => {
@@ -86,7 +96,7 @@ function Monerium() {
     if (!moneriumPack) return
 
     const moneriumClient = await moneriumPack.open({
-      redirectUrl: 'http://localhost:3000/monerium',
+      redirectUrl: 'http://localhost:3000/orders',
       authCode,
       refreshToken
     })
@@ -94,8 +104,9 @@ function Monerium() {
     const authContext = await moneriumClient.getAuthContext()
     const profile = await moneriumClient.getProfile(authContext.defaultProfile)
     const balances = await moneriumClient.getBalances()
-    const orders = await moneriumClient.getOrders()
+    const orders = await moneriumClient.getOrders({ memo: "I just uploaded euros to a blockchain!" })
 
+    console.log(order)
     console.group('Monerium data')
     console.log('AuthContext', authContext)
     console.log('Profile', profile)
@@ -141,19 +152,30 @@ function Monerium() {
 
   if (!isLoggedIn) return <Disconnected />
 
+
   return (
-    <Box p={2}>
+    <div>
       {authContext ? (
-        <Connected
-          safe={selectedSafe}
-          orderState={orderState}
-          authContext={authContext}
-          onTransfer={transfer}
-          onLogout={closeMoneriumFlow}
-        />
+        <div>
+          <Button variant="contained" color="error" onClick={closeMoneriumFlow}>
+            Logout from Monerium
+          </Button>
+          {/* <Button variant="contained" onClick={handleModalOpen}>
+            Transfer
+          </Button> */}
+          <Connected
+            open={isTransferOpen}
+            onClose={() => setTransferClose()}
+            safe={selectedSafe}
+            orderState={orderState}
+            authContext={authContext}
+            onTransfer={transfer}
+            onLogout={() => { }}
+          />
+        </div>
       ) : (
         <>
-          {!selectedSafe && <DeploySafe />}
+          {/* {!selectedSafe && <DeploySafe />} */}
 
           {selectedSafe && (
             <LoginWithMonerium
@@ -164,7 +186,7 @@ function Monerium() {
           )}
         </>
       )}
-    </Box>
+    </div>
   )
 }
 

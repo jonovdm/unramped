@@ -1,6 +1,16 @@
-import { useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 import { AuthContext, OrderState } from '@monerium/sdk'
-import { Alert, Box, Button, TextField, CircularProgress as Loader } from '@mui/material'
+import {
+  Alert,
+  Box,
+  Button,
+  TextField,
+  CircularProgress as Loader,
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  DialogActions,
+} from '@mui/material'
 
 type ConnectedProps = {
   authContext: AuthContext
@@ -8,11 +18,14 @@ type ConnectedProps = {
   safe: string
   onLogout: () => void
   onTransfer: (iban: string, amount: string) => void
+  open: boolean
+  onClose: () => void;
 }
 
-function Connected({ authContext, orderState, safe, onLogout, onTransfer }: ConnectedProps) {
+function Connected({ authContext, orderState, safe, onLogout, onTransfer, open, onClose }: ConnectedProps) {
   const [counterpartIban, setCounterpartIban] = useState<string>('')
   const [isLoading, setIsLoading] = useState<boolean>(false)
+  // const [isDialogOpen, setDialogOpen] = useState<boolean>(false)
 
   useEffect(() => {
     if (orderState === OrderState.processed || orderState === OrderState.rejected) {
@@ -23,59 +36,72 @@ function Connected({ authContext, orderState, safe, onLogout, onTransfer }: Conn
     }
   }, [orderState])
 
+  const handleDialogClose = () => {
+    onClose();
+  };
+
+  const handleTransfer = () => {
+    onTransfer(counterpartIban, '1');
+    setIsLoading(true);
+    onClose();
+  };
+
   return (
     <>
-      <p>Email: {authContext.email}</p>
-      <p>User Id: {authContext.userId}</p>
-      <p>Default profile: {authContext.defaultProfile}</p>
+      <Dialog open={open} onClose={handleDialogClose}>
+        <DialogTitle>Settle Order</DialogTitle>
+        <DialogContent>
+          <p>Email: {authContext.email}</p>
+          <p>User Id: {authContext.userId}</p>
+          <p>Default profile: {authContext.defaultProfile}</p>
 
-      {isLoading ? (
-        <Box display="flex" alignItems="center">
-          <Loader color="primary" size={40} sx={{ mr: 2 }} />
-          {orderState && (
+          {isLoading ? (
+            <Box display="flex" alignItems="center">
+              <Loader color="primary" size={40} sx={{ mr: 2 }} />
+              {orderState && (
+                <>
+                  {orderState === OrderState.placed && <Alert severity="info">Order placed</Alert>}
+                  {orderState === OrderState.pending && <Alert severity="info">Order pending</Alert>}
+                  {orderState === OrderState.rejected && <Alert severity="error">Order rejected</Alert>}
+                  {orderState === OrderState.processed && (
+                    <Alert severity="success">Order processed</Alert>
+                  )}
+                </>
+              )}
+            </Box>
+          ) : (
             <>
-              {orderState === OrderState.placed && <Alert severity="info">Order placed</Alert>}
-              {orderState === OrderState.pending && <Alert severity="info">Order pending</Alert>}
-              {orderState === OrderState.rejected && <Alert severity="error">Order rejected</Alert>}
-              {orderState === OrderState.processed && (
-                <Alert severity="success">Order processed</Alert>
+              <TextField
+                value={counterpartIban}
+                onChange={(e) => setCounterpartIban(e.target.value)}
+                placeholder="Enter the buyer's IBAN"
+                sx={{ mb: 2, width: '24em' }}
+              />
+
+              <br />
+
+              {counterpartIban && safe && (
+                <>
+                  <Alert severity="info">{`You are going to transfer 1 EUR from ${safe} to ${counterpartIban}`}</Alert>
+
+                  <Button
+                    variant="contained"
+                    onClick={handleTransfer}
+                    sx={{ my: 2, mr: 2 }}
+                  >
+                    Transfer EUROs
+                  </Button>
+                </>
               )}
             </>
           )}
-        </Box>
-      ) : (
-        <>
-          <TextField
-            value={counterpartIban}
-            onChange={(e) => setCounterpartIban(e.target.value)}
-            placeholder="Enter the recipient's IBAN"
-            sx={{ mb: 2, width: '24em' }}
-          />
-
-          <br />
-
-          {counterpartIban && safe && (
-            <>
-              <Alert severity="info">{`You are going to transfer 1 EUR from ${safe} to ${counterpartIban}`}</Alert>
-
-              <Button
-                variant="contained"
-                onClick={() => {
-                  onTransfer(counterpartIban, '1')
-                  setIsLoading(true)
-                }}
-                sx={{ my: 2, mr: 2 }}
-              >
-                Transfer
-              </Button>
-            </>
-          )}
-
-          <Button variant="contained" color="error" onClick={onLogout}>
-            Logout from Monerium
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleDialogClose} color="primary">
+            Close
           </Button>
-        </>
-      )}
+        </DialogActions>
+      </Dialog>
     </>
   )
 }

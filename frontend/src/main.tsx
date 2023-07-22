@@ -30,10 +30,10 @@ const router = createBrowserRouter([
         path: '/history',
         element: <MakerOrders />
       },
-      {
-        path: 'monerium',
-        element: <Monerium />
-      },
+      // {
+      //   path: 'monerium',
+      //   element: <Monerium />
+      // },
       {
         path: 'login',
         element: <WorldCoin />
