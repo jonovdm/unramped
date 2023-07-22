@@ -14,6 +14,7 @@
   },
   "dependencies": {
     "@ethereum-attestation-service/eas-sdk": "^0.29.1",
+    "@nouns/sdk": "^0.4.0",
     "@openzeppelin/contracts": "^4.9.2",
     "@sismo-core/sismo-connect-solidity": "^0.0.16",
     "ethers": "^5.7.2",

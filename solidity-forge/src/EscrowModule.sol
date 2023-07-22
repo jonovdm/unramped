@@ -14,10 +14,11 @@ contract EscrowModule is Module {
     INounsLib public nounsLib;
     address private rampManager;
     uint256 public volume = 0;
-    string public dataURI;
+    // string public dataURI;
 
-    constructor(address _fundSafe, address _rampManager, address _functionsConsumer, address _nounsLib) {
-        bytes memory initializeParams = abi.encode(_fundSafe, _rampManager, _functionsConsumer, _nounsLib);
+    constructor(address _fundSafe, address _rampManager, address _functionsConsumer) {
+        //address _nounsLib
+        bytes memory initializeParams = abi.encode(_fundSafe, _rampManager, _functionsConsumer); //_nounsLib
         setUp(initializeParams);
     }
 
@@ -35,9 +36,9 @@ contract EscrowModule is Module {
         transferOwnership(_fundSafe);
         rampManager = _rampManager;
         functionsConsumer = IFunctionsConsumer(_functionsConsumer);
-        // assign noun
-        nounsLib = INounsLib(_nounsLib);
-        dataURI = nounsLib.generateSVG(0, address(this));
+        // Assign Noun SVG ***NOTE as Nouns isn't deployed on the chains we needed we had to opt for an offchain solution
+        // nounsLib = INounsLib(_nounsLib);
+        // dataURI = nounsLib.generateSVG(0, address(this));
     }
 
     modifier onlyRampManager() {
@@ -74,7 +75,7 @@ contract EscrowModule is Module {
         IRampManager.Order memory order = IRampManager(rampManager).getOrder(_orderID);
         require(!order.complete, "order already completed");
         volume = volume + order.requestedAmount;
-        dataURI = nounsLib.generateSVG(volume, address(this));
+        // dataURI = nounsLib.generateSVG(volume, address(this));
         //check status of monerium transfer using chainlink functions using the monerium order id;
         require(_checkMoneriumOrder() == "1", "sry order not processed");
         IERC20(order.requestedAsset).safeApprove(this.avatar(), order.requestedAmount);
