@@ -1,6 +1,7 @@
 import React, { createContext, useState, useEffect } from 'react'
 import { Web3AuthOptions } from '@web3auth/modal'
 import { CHAIN_NAMESPACES, SafeEventEmitterProvider, WALLET_ADAPTERS } from '@web3auth/base'
+import { OpenloginAdapter } from '@web3auth/openlogin-adapter'
 // https://github.com/safe-global/safe-core-sdk/pull/443
 // push changes upstream to safe-core-sdk
 import { AuthKitSignInData, Web3AuthModalPack, Web3AuthEventListener } from '@safe-global/auth-kit'
@@ -43,12 +44,16 @@ const AuthProvider = ({ children }: AuthContextProviderProps) => {
           rpcTarget: 'https://rpc.ankr.com/eth_goerli'
         },
         uiConfig: {
-          theme: 'light',
-          loginMethodsOrder: []
+          theme: 'dark',
+          loginMethodsOrder: ['google', 'facebook']
         }
       }
 
       const modalConfig = {
+        [WALLET_ADAPTERS.TORUS_EVM]: {
+          label: 'torus',
+          showOnModal: false
+        },
         [WALLET_ADAPTERS.METAMASK]: {
           label: 'metamask',
           showOnDesktop: true,
@@ -56,10 +61,22 @@ const AuthProvider = ({ children }: AuthContextProviderProps) => {
         }
       }
 
+      const openloginAdapter = new OpenloginAdapter({
+        loginSettings: {
+          mfaLevel: 'mandatory'
+        },
+        adapterSettings: {
+          uxMode: 'popup',
+          whiteLabel: {
+            name: 'Safe'
+          }
+        }
+      })
+
       const web3AuthModalPack = new Web3AuthModalPack({
         txServiceUrl: 'https://safe-transaction-goerli.safe.global'
       })
-      await web3AuthModalPack.init({ options, adapters: [], modalConfig })
+      await web3AuthModalPack.init({ options, adapters: [openloginAdapter], modalConfig })
 
       const provider = web3AuthModalPack.getProvider()
 
@@ -77,7 +94,6 @@ const AuthProvider = ({ children }: AuthContextProviderProps) => {
   }, [])
 
   const logIn = async () => {
-    console.log(web3AuthModalPack)
     if (!web3AuthModalPack) return
 
     const response = await web3AuthModalPack.signIn()
