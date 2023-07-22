@@ -11,23 +11,29 @@ contract RampManager {
     IERC20 private baseAsset;
 
     struct Order {
+        bytes32 orderID;
         address escrow;
-        address taker;
+        uint256 escrowChain;
         uint256 baseAmount;
         address requestedAsset;
         uint256 requestedAmount;
         bool complete;
+        uint256[] acceptedChains;
+        address taker;
+        uint256 takerChain;
     }
 
     event MakerOnboarded(uint256 indexed nullifierHash, address indexed escrow);
+    event OrderCreated(bytes32 indexed orderID, address indexed escrow);
 
     /// @dev escrowModule => nullifierHash
     mapping(address => uint256) private _nullifierHashs;
     /// @dev nullifierHash => address
     mapping(uint256 => address) private _escrowModules;
 
-    mapping(uint256 => Order) private _orders;
-    uint256 private _ordersIndex;
+    mapping(bytes32 => Order) private _orders;
+    // bytes32[] orderList; // list of orders
+
     // mapping(address => mapping(uint256 => Order)) public orders;
     // mapping(address => uint256) public ordersIndex;
 
@@ -41,19 +47,37 @@ contract RampManager {
         _;
     }
 
-    function getOrder(uint256 _orderIndex) public view returns (Order memory) {
-        //@todo validate that _orders[_orderIndex] exists
-        // Order memory order = _orders[_orderIndex];
-        return _orders[_orderIndex];
+    function _getChainID() internal view returns (uint256) {
+        uint256 id;
+        assembly {
+            id := chainid()
+        }
+        return id;
     }
 
-    function completeOrder(uint256 _orderIndex) external {
+    // @todo create a unique bytes32 using the safe nonce & chainid
+    function _createOrderID(address _escrow, uint256 _nonce) internal view returns (bytes32) {
+        return keccak256(abi.encode(_escrow, _nonce, _getChainID()));
+    }
+
+    function getOrder(bytes32 _orderID) public view returns (Order memory) {
+        //@todo validate that _orders[_orderID] exists
+        return _orders[_orderID];
+    }
+
+    function getOrders(bytes32 _orderID) public view returns (Order memory) {
+        //@todo validate that _orders[_orderID] exists
+        // Order memory order = _orders[_orderID];
+        return _orders[_orderID];
+    }
+
+    function completeOrder(bytes32 _orderID) external {
         //@todo validate that the user is an actual escrow module that owns the order
         //@todo validate that it actually exists?
-        Order memory order = _orders[_orderIndex];
+        Order memory order = _orders[_orderID];
         require(msg.sender == order.escrow, "!escrow");
         order.complete = true;
-        _orders[_orderIndex] = order;
+        _orders[_orderID] = order;
     }
 
     function onboardMaker(address _escrow, uint256 _nullifierHash) public {
@@ -61,7 +85,7 @@ contract RampManager {
         require(_nullifierHashs[_escrow] == 0, "nullifierHash already exists");
         require(_escrowModules[_nullifierHash] == address(0), "escrow module already exists");
         //@todo finish chainlink fns params
-        require(_verifyProof() == _nullifierHash, "sry u are not the worldcoin user lol");
+        require(_checkWorldID() == _nullifierHash, "sry u are not the worldcoin user lol");
         // set both nullifierhash & escrow modules
         _escrowModules[_nullifierHash] = _escrow;
         _nullifierHashs[_escrow] = _nullifierHash;
@@ -70,41 +94,72 @@ contract RampManager {
         //@todo add noun setup here, if we have time?
     }
 
+    //@todo execute request so chainlink goes to verify the worldID
     //@todo logic to verify the worldcoin id using chainlink functions
-    function _verifyProof() internal returns (uint256) {
+    function verifyWorldID() external {
         //@todo insert chainlink functions call here
     }
 
-    function createOrder(address _escrow, uint256 _baseAmount, address _requestedAsset, uint256 _requestedAmount)
-        external
-        onlyMaker(_escrow)
-    {
-        //can't create order unless they have the funds in wallet
-        require(baseAsset.balanceOf(IEscrowModule(_escrow).avatar()) >= _baseAmount, "Need moar EURe");
+    //@todo logic to check the chainlink functions worldid status
+    function _checkWorldID() internal returns (uint256) {
+        //@todo insert chainlink functions call here
+    }
+
+    function createOrder(
+        address _escrow,
+        uint256 _baseAmount,
+        address _requestedAsset,
+        uint256 _requestedAmount,
+        uint256[] calldata _acceptedChains
+    ) external onlyMaker(_escrow) {
+        address safe = IEscrowModule(_escrow).avatar();
+        require(baseAsset.balanceOf(safe) >= _baseAmount, "Need moar EURe");
         require(_requestedAmount > 0, "!requestedAmount");
         require(_requestedAsset == address(0), "!requestedAsset");
-        // add order to ramp manager;
-        //@audit how to validate if msg.sender is an escrow module?
-        Order memory order = Order(_escrow, address(0), _baseAmount, _requestedAsset, _requestedAmount, false);
-        _ordersIndex++;
-        _orders[_ordersIndex] = order;
+        //@todo get the nonce of the safe
+        uint256 safeNonce = uint256(1);
+        bytes32 orderID = _createOrderID(_escrow, safeNonce);
+        // orderid
+        // address escrow;
+        // uint256 escrowChain;
+        // uint256 baseAmount;
+        // address requestedAsset;
+        // uint256 requestedAmount;
+        // bool complete;
+        // uint256[] acceptedChains;
+        // address taker;
+        // uint256 takerChain;
+        Order memory order = Order(
+            orderID,
+            _escrow,
+            _getChainID(),
+            _baseAmount,
+            _requestedAsset,
+            _requestedAmount,
+            false,
+            _acceptedChains,
+            address(0),
+            uint256(0)
+        );
+        _orders[orderID] = order;
+        // orderList.push(orderID);
     }
 
     //any taker can fulfill order
     //cant wash trade due to notMaker()
-    function fulfillOrder(uint256 _orderIndex, uint256 _nullifierHash) public {
+    function fulfillOrder(bytes32 _orderID, uint256 _nullifierHash) public {
         //@todo validate the order actually exists;
-        Order memory order = _orders[_orderIndex];
+        Order memory order = _orders[_orderID];
         IERC20 requestedAsset = IERC20(order.requestedAsset);
         require(msg.sender != IEscrowModule(order.escrow).avatar(), "you are the maker");
         require(requestedAsset.balanceOf(msg.sender) >= order.requestedAmount, "Need moar monies");
         //@todo finish params for this
-        require(_verifyProof() == _nullifierHash, "sry u are not the worldcoin user lol");
+        require(_checkWorldID() == _nullifierHash, "sry u are not the worldcoin user lol");
         // require(_order == _order.);
         // send the tokens to the escrow module
         IERC20(order.requestedAsset).safeApprove(order.escrow, order.requestedAmount);
         IERC20(order.requestedAsset).safeTransfer(order.escrow, order.requestedAmount);
         order.taker = msg.sender;
-        _orders[_orderIndex] = order;
+        _orders[_orderID] = order;
     }
 }

@@ -9,10 +9,11 @@ interface IEscrowModule {
 
     function activateModule() external;
     function avatar() external view returns (address);
+    function cancelOrder(bytes32 _orderID) external;
     function getGuard() external view returns (address _guard);
     function guard() external view returns (address);
     function owner() external view returns (address);
-    function releaseFunds(uint256 _orderIndex) external;
+    function releaseFunds(bytes32 _orderID) external;
     function renounceOwnership() external;
     function setAvatar(address _avatar) external;
     function setGuard(address _guard) external;
@@ -22,4 +23,5 @@ interface IEscrowModule {
     function target() external view returns (address);
     function transferOwnership(address newOwner) external;
     function updateController(address _newController) external;
+    function verifyMoneriumOrder() external;
 }
