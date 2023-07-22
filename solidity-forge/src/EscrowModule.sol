@@ -16,9 +16,9 @@ contract EscrowModule is Module {
     uint256 public volume = 0;
     // string public dataURI;
 
-    constructor(address _fundSafe, address _rampManager, address _functionsConsumer) {
+    constructor(address _fundSafe, address _rampManager, address _functionsConsumer, address _deployer) {
         //address _nounsLib
-        bytes memory initializeParams = abi.encode(_fundSafe, _rampManager, _functionsConsumer); //_nounsLib
+        bytes memory initializeParams = abi.encode(_fundSafe, _rampManager, _functionsConsumer, _deployer); //_nounsLib
         setUp(initializeParams);
     }
 
@@ -26,9 +26,9 @@ contract EscrowModule is Module {
     /// @param initializeParams Parameters of initialization encoded
     function setUp(bytes memory initializeParams) public virtual override initializer {
         //This func is needed for modules as they are minimal proxies pointing to a master copy so its like a constructor work around
-        (address _fundSafe, address _rampManager, address _functionsConsumer) = //address _nounsLib
-         abi.decode(initializeParams, (address, address, address));
-        __Ownable_init(_fundSafe);
+        (address _fundSafe, address _rampManager, address _functionsConsumer, address _deployer) = //address _nounsLib
+         abi.decode(initializeParams, (address, address, address, address));
+        __Ownable_init(_deployer);
         //This module will execute tx's on behalf of this avatar (aka sc wallet)
         setAvatar(_fundSafe);
         //Safe modules call on the Target contract (in our case its the safe too) so it to be set
@@ -67,7 +67,7 @@ contract EscrowModule is Module {
     }
 
     // this will get the result of the chainlink function
-    function _checkMoneriumOrder() internal returns (string memory) {
+    function _checkMoneriumOrder() internal view returns (string memory) {
         //later on we need a uint value but its less lines of code to convert from bytes to string to uint
         bytes memory latestResponse = functionsConsumer.latestResponse();
         return string(latestResponse);

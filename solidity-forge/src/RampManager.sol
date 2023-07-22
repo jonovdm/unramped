@@ -125,16 +125,19 @@ contract RampManager {
         //@todo get the nonce of the safe
         uint256 safeNonce = uint256(1);
         bytes32 orderID = _createOrderID(_escrow, safeNonce);
-        // orderid
-        // address escrow;
-        // uint256 escrowChain;
-        // uint256 baseAmount;
-        // address requestedAsset;
-        // uint256 requestedAmount;
-        // bool complete;
-        // uint256[] acceptedChains;
-        // address taker;
-        // uint256 takerChain;
+        // struct Order {
+        //     bytes32 orderID;
+        //     address escrow;
+        //     uint256 escrowChain;
+        //     uint256 baseAmount;
+        //     address requestedAsset;
+        //     uint256 requestedAmount;
+        //     bool complete;
+        //     uint256[] acceptedChains;
+        //     address taker;
+        //     bytes32 takerIBAN;
+        //     uint256 takerChain;
+        // }
         //@todo need to clean up
         Order memory order = Order(
             orderID,
@@ -146,6 +149,7 @@ contract RampManager {
             false,
             _acceptedChains,
             address(0),
+            bytes32(0),
             uint256(0)
         );
         _orders[orderID] = order;
