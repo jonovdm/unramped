@@ -3,6 +3,7 @@ pragma solidity 0.8.19;
 
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import "./IEscrowModule.sol";
 
 contract RampManager {
     using SafeERC20 for IERC20;
@@ -40,8 +41,9 @@ contract RampManager {
         _;
     }
 
-    function getOrder(uint256 _orderIndex) public returns (Order) {
+    function getOrder(uint256 _orderIndex) public view returns (Order memory) {
         //@todo validate that _orders[_orderIndex] exists
+        // Order memory order = _orders[_orderIndex];
         return _orders[_orderIndex];
     }
 
@@ -49,7 +51,7 @@ contract RampManager {
         //@todo validate that the user is an actual escrow module that owns the order
         //@todo validate that it actually exists?
         Order memory order = _orders[_orderIndex];
-        require(msg.sender == IEscrowModule(order.escrow), "!escrow");
+        require(msg.sender == order.escrow, "!escrow");
         order.complete = true;
         _orders[_orderIndex] = order;
     }
@@ -83,7 +85,7 @@ contract RampManager {
         require(_requestedAsset == address(0), "!requestedAsset");
         // add order to ramp manager;
         //@audit how to validate if msg.sender is an escrow module?
-        Order memory order = Order(_escrow, address(0), _baseAmount, _requestedAsset, _requestedAmount);
+        Order memory order = Order(_escrow, address(0), _baseAmount, _requestedAsset, _requestedAmount, false);
         _ordersIndex++;
         _orders[_ordersIndex] = order;
     }
@@ -93,8 +95,8 @@ contract RampManager {
     function fulfillOrder(uint256 _orderIndex, uint256 _nullifierHash) public {
         //@todo validate the order actually exists;
         Order memory order = _orders[_orderIndex];
-        IERC20 memory requestedAsset = IERC20(order.requestedAsset);
-        require(msg.sender != IEscrowModule(order._escrow).avatar(), "you are the maker");
+        IERC20 requestedAsset = IERC20(order.requestedAsset);
+        require(msg.sender != IEscrowModule(order.escrow).avatar(), "you are the maker");
         require(requestedAsset.balanceOf(msg.sender) >= order.requestedAmount, "Need moar monies");
         //@todo finish params for this
         require(_verifyProof() == _nullifierHash, "sry u are not the worldcoin user lol");
@@ -102,7 +104,7 @@ contract RampManager {
         // send the tokens to the escrow module
         IERC20(order.requestedAsset).safeApprove(order.escrow, order.requestedAmount);
         IERC20(order.requestedAsset).safeTransfer(order.escrow, order.requestedAmount);
-        _orders.taker = msg.sender;
+        order.taker = msg.sender;
         _orders[_orderIndex] = order;
     }
 }
