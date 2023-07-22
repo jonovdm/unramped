@@ -15,4 +15,4 @@
 	url = https://github.com/OpenZeppelin/openzeppelin-contracts-upgradeable
 [submodule "functions-hardhat-starter-kit"]
 	path = functions-hardhat-starter-kit
-	url = https://github.com/smartcontractkit/functions-hardhat-starter-kit
+	url = https://github.com/smartcontractkit/functions-hardhat-starter-kit.git
