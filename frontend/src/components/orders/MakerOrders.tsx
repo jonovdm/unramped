@@ -15,6 +15,8 @@ import ReviewsOutlinedIcon from '@mui/icons-material/ReviewsOutlined';
 import Tooltip from '@mui/material/Tooltip'
 import OrderModal from './CreateOrder';
 
+import { useAuth } from '../../AuthContext'
+
 const isSessionValid = (sessionId: string) => sessionId.length === 28;
 const orders = [
     { orderID: 1, created: 'Order 1', baseAmount: 10, requestedAmount: 100, complete: true },
@@ -42,6 +44,8 @@ function MakerOrders() {
     const [viewReview, setViewReview] = useState<{}>();
 
     const [isModalOpen, setModalOpen] = useState(false);
+    const { isLoggedIn, selectedSafe, provider: authProvider } = useAuth()
+    const cumulativeVolume = BigNumber.from("1000000000000000000000")
 
     const handleModalOpen = () => {
         setModalOpen(true);
@@ -78,12 +82,14 @@ function MakerOrders() {
             />
             <Grid container alignItems="center" spacing={2}>
                 {/* Image on the left */}
-                <Grid item xs={6} md={2} sx={{ maxWidth: '250px' }}> {/* Set the maximum width to 250px */}
-                    <Noun
-                        safeAddress={"0x66c58e1E3437d64818d7bE00f30CcDF4C859eADf"}
-                        cumulativeVolume={BigNumber.from(10000)}
-                    ></Noun>
-                </Grid>
+                {selectedSafe && (
+                    <Grid item xs={6} md={2} sx={{ maxWidth: '250px' }}> {/* Set the maximum width to 250px */}
+                        <Noun
+                            safeAddress={selectedSafe}
+                            cumulativeVolume={cumulativeVolume}
+                        ></Noun>
+                    </Grid>
+                )}
 
                 {/* Buttons on the right */}
                 <Grid item xs={6} md={10}>

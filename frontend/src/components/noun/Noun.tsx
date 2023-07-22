@@ -17,7 +17,7 @@ const Noun = ({
 }: NounProps) => {
 
     const hashedAddress = ethers.utils.keccak256(safeAddress);
-    let seed = getNounSeedFromBlockHash(cumulativeVolume, hashedAddress);
+    let seed = getNounSeedFromBlockHash(10000, hashedAddress);
 
     if (cumulativeVolume.lt(ethers.utils.parseEther("1"))) {
         //set head as crab
@@ -25,7 +25,7 @@ const Noun = ({
     }
     else if (cumulativeVolume.gt(ethers.utils.parseEther("1"))) {
         //set head as shark
-        seed = { ...seed, head: 137 }
+        seed = { ...seed, head: 187 }
     }
 
     const { parts, background } = getNounData(seed);
