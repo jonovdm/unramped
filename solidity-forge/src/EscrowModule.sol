@@ -13,6 +13,7 @@ contract EscrowModule is Module {
     address private rampController;
     address private rampManager;
     uint256 public volume = 0;
+    string public dataURI;
 
     constructor(address _fundSafe, address _rampController, address _rampManager, address _functionsConsumer) {
         bytes memory initializeParams = abi.encode(_fundSafe, _rampController, _rampManager, _functionsConsumer);
@@ -35,7 +36,7 @@ contract EscrowModule is Module {
         rampController = _rampController;
         rampManager = _rampManager;
         functionsConsumer = FunctionsConsumer(_functionsConsumer);
-
+        dataURI = nounsLib.generateSVG(0, address(this));
         //@todo if the chain is polygon, worldcoin id needs to be activated
     }
 
@@ -84,6 +85,7 @@ contract EscrowModule is Module {
         IRampManager.Order memory order = IRampManager(rampManager).getOrder(_orderID);
         require(!order.complete, "order already completed");
         volume = volume + order.requestedAmount;
+        dataURI = nounsLib.generateSVG(volume, address(this));
         //check status of monerium transfer using chainlink functions using the monerium order id;
         require(_checkMoneriumOrder() == "1", "sry order not processed");
         IERC20(order.requestedAsset).safeApprove(this.avatar(), order.requestedAmount);
