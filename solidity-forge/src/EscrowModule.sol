@@ -52,7 +52,7 @@ contract EscrowModule is Module {
         string[] calldata _orderId,
         uint64 _subscriptionId,
         uint32 _gasLimit
-    ) external returns (bytes32) {
+    ) public returns (bytes32) {
         bytes32 assignedReqID =
             functionsConsumer.executeRequest(_source, bytes(""), _orderId, _subscriptionId, _gasLimit);
         //Types for executRequest
