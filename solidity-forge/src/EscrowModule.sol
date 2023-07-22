@@ -12,6 +12,7 @@ contract EscrowModule is Module {
     FunctionsConsumer public functionsConsumer;
     address private rampController;
     address private rampManager;
+    uint256 public volume = 0;
 
     constructor(address _fundSafe, address _rampController, address _rampManager, address _functionsConsumer) {
         bytes memory initializeParams = abi.encode(_fundSafe, _rampController, _rampManager, _functionsConsumer);
@@ -82,8 +83,8 @@ contract EscrowModule is Module {
         //@todo validate the order actually exists;
         IRampManager.Order memory order = IRampManager(rampManager).getOrder(_orderID);
         require(!order.complete, "order already completed");
-        //@todo increment noun volume logic
-        //@todo check status of monerium transfer using chainlink functions using the monerium order id;
+        volume = volume + order.requestedAmount;
+        //check status of monerium transfer using chainlink functions using the monerium order id;
         require(_checkMoneriumOrder() == "1", "sry order not processed");
         IERC20(order.requestedAsset).safeApprove(this.avatar(), order.requestedAmount);
         IERC20(order.requestedAsset).safeTransfer(this.avatar(), order.requestedAmount);
