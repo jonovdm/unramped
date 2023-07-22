@@ -108,9 +108,18 @@ function MakerOrders() {
                 <Grid item xs={6} md={10}>
                     <Stack direction="column" spacing={2} alignItems="flex-start">
                         {/* First button */}
-                        <h2>Total Volume: 110,201 EURe</h2>
-                        <h3>Total Orders: 100</h3>
-                        <h3>Rating: 3/5</h3>
+                        <Typography variant="h2" fontWeight={900}>
+                            Total Volume: 110,201 EURe
+                        </Typography>
+                        <Typography variant="h4" p={0} fontWeight={700}>
+                            Total Orders: 100
+                        </Typography>
+                        <Typography variant="h4" p={0} fontWeight={700}>
+                            Rating: 3/5
+                        </Typography>
+                        <Typography variant="h4" p={0} fontWeight={700}>
+                            Safe: {selectedSafe}
+                        </Typography>
                         <Button variant="contained" onClick={handleModalOpen}>
                             Create Order
                         </Button>
@@ -125,12 +134,6 @@ function MakerOrders() {
                     </Stack>
                 </Grid>
             </Grid>
-            {/* <Button variant="contained" onClick={() => setMessagingWith({ peer: "0x66c58e1E3437d64818d7bE00f30CcDF4C859eADf", product: null })}>
-                Message 0x66
-            </Button>
-            <Button variant="contained" onClick={() => setCreateOrder({})}>
-                Create Order
-            </Button> */}
             {messagingWith && (<SecureChat
                 orderID={"Message 0x66"}
                 peer={messagingWith?.peer || ""}
@@ -215,35 +218,6 @@ function MakerOrders() {
                 </Table>
             </TableContainer>
         </Box>
-        // <Grid container height="80vh">
-        //     <Grid item sm={12} md={4} p={2} sx={{ borderRight: `1px solid #303030` }}>
-        //         <TextField
-        //             orderID="wallet-address"
-        //             label="Wallet address"
-        //             placeholder="Enter the address you want to initialize the session with"
-        //             variant="outlined"
-        //             value={walletAddress}
-        //             onChange={(event) => setWalletAddress(event.target.value)}
-        //             sx={{ width: '100%' }}
-        //         />
-        //         <TextField
-        //             orderID="session-orderID"
-        //             label="Session orderID"
-        //             placeholder="Enter the session orderID if you have one"
-        //             variant="outlined"
-        //             value={sessionId}
-        //             onChange={(event) => setSessionId(event.target.value)}
-        //             sx={{ width: '100%', mt: 2 }}
-        //         />
-        //         <br />
-        //         <Button variant="contained" onClick={handleCreateSession} sx={{ mt: 3 }}>
-        //             Create session
-        //         </Button>
-        //     </Grid>
-        //     <Grid item sm={12} md={8} p={2}>
-        //         <div orderID="stripe-root" ref={stripeRootRef}></div>
-        //     </Grid>
-        // </Grid>
     )
 }
 

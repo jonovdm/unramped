@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { Button, Input, InputAdornment, Modal, Paper, Typography, TextField, Stack } from '@mui/material';
 import useXMTPClient from '../hooks/useXMTPClient';
 import { Conversation, DecodedMessage } from '@xmtp/xmtp-js';
@@ -17,6 +17,7 @@ const SecureChat = ({ isOpen, orderID, peerNickname, peer, onClose }: SecureChat
     const [conversation, setConversation] = useState<Conversation | null>(null);
     const [messages, setMessages] = useState<DecodedMessage[]>([]);
     const [text, setText] = useState('');
+    const chatContainerRef = useRef<HTMLDivElement | null>(null);
 
     const onSend = async () => {
         conversation?.send(text);
@@ -54,13 +55,20 @@ const SecureChat = ({ isOpen, orderID, peerNickname, peer, onClose }: SecureChat
         streamMessages();
     }, [conversation, messages]);
 
+    // Scroll to the bottom of the chat container whenever new messages are added
+    useEffect(() => {
+        if (chatContainerRef.current) {
+            chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+        }
+    }, [messages]);
+
     return (
         <Modal open={isOpen} onClose={onClose}>
             <Paper sx={{ position: 'fixed', bottom: '20px', right: '20px', maxWidth: '400px', width: '100%', maxHeight: '80%', overflowY: 'auto' }}>
                 <Typography variant="h3" fontWeight={900}>
                     {"Order ID: " + orderID}
                 </Typography>
-                <Stack sx={{ m: 2 }}>
+                <Stack sx={{ m: 2, flexGrow: 1, height: '60vh', overflowY: 'scroll' }} ref={chatContainerRef}>
                     {messages
                         .filter((v, i, a) => a.findIndex((t) => t.id === v.id) === i)
                         .map((msg) => (

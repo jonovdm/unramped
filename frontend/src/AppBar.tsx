@@ -1,4 +1,5 @@
-import { Link as RouterLink } from 'react-router-dom'
+import { useState } from 'react';
+import { Link as RouterLink } from 'react-router-dom';
 import {
   AppBar as MuiAppBar,
   Typography,
@@ -6,75 +7,104 @@ import {
   Link,
   Button,
   Box,
-  MenuItem,
-  Select,
-  SelectChangeEvent
-} from '@mui/material'
-import { EthHashInfo } from '@safe-global/safe-react-components'
+  Input,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+} from '@mui/material';
+import { EthHashInfo } from '@safe-global/safe-react-components';
 
-import { useAuth } from './AuthContext'
+import { useAuth } from './AuthContext';
 
-const AppBar = () => {
-  const { logIn, logOut, isLoggedIn, data, selectedSafe, setSelectedSafe } = useAuth()
+interface AppBarProps {
+  //
+}
+
+const AppBar: React.FC<AppBarProps> = () => {
+  const { logIn, logOut, isLoggedIn, data, selectedSafe, setSelectedSafe } = useAuth();
+  const [isSafeModalOpen, setIsSafeModalOpen] = useState(false);
+  const [safeInputValue, setSafeInputValue] = useState('');
+
+  const handleOpenSafeModal = () => {
+    setIsSafeModalOpen(true);
+    setSafeInputValue(selectedSafe);
+  };
+
+  const handleCloseSafeModal = () => {
+    setIsSafeModalOpen(false);
+  };
+
+  const handleSelectSafe = () => {
+    if (setSelectedSafe) {
+      setSelectedSafe(safeInputValue);
+    }
+    handleCloseSafeModal();
+  };
 
   return (
-    <StyledAppBar position="static" color="default">
-      <Typography variant="h1" pl={3} fontWeight={900}>
-        Unramped
-      </Typography>
-      <nav>
-        <Link to={`/orders`} component={RouterLink} pl={2} sx={{ textDecoration: 'none' }}>
-          Orders
-        </Link>
-        <Link to={`/history`} component={RouterLink} pl={2} sx={{ textDecoration: 'none' }}>
-          History
-        </Link>
-      </nav>
-      <Box mr={5} display="flex" justifyContent="flex-end" alignItems="center" width="100%">
-        {isLoggedIn ? (
-          <>
-            <EthHashInfo name="Owner" address={data?.eoa || ''} showCopyButton />
+    <>
+      <StyledAppBar position="static" color="default">
+        <Typography variant="h1" pl={3} fontWeight={900}>
+          Unramped
+        </Typography>
+        <nav>
+          <Link to={`/orders`} component={RouterLink} pl={2} sx={{ textDecoration: 'none' }}>
+            Orders
+          </Link>
+          <Link to={`/history`} component={RouterLink} pl={2} sx={{ textDecoration: 'none' }}>
+            History
+          </Link>
+        </nav>
+        <Box mr={5} display="flex" justifyContent="flex-end" alignItems="center" width="100%">
+          {isLoggedIn ? (
+            <>
+              <EthHashInfo name="Owner" address={data?.eoa || ''} showCopyButton />
 
-            {data && data?.safes && data?.safes?.length > 0 && (
-              <Select
-                value={selectedSafe}
-                onChange={(event: SelectChangeEvent<string>) =>
-                  setSelectedSafe?.(event.target.value)
-                }
-                sx={{ height: '54px' }}
-              >
-                {data?.safes.map((safe, index) => (
-                  <MenuItem key={safe} value={safe}>
-                    <EthHashInfo name={`Safe ${index + 1}`} address={safe} showCopyButton />
-                  </MenuItem>
-                ))}
-              </Select>
-            )}
+              {data && data?.eoa && (
+                <>
+                  <Button
+                    variant="outlined"
+                    onClick={handleOpenSafeModal}
+                    sx={{ height: '54px', textTransform: 'none' }}
+                  >
+                    {selectedSafe ? `Change Safe` : "Merchant Login"}
+                  </Button>
+                </>
+              )}
 
-            {data && data?.safes && !data?.safes?.length && (
-              <Button
-                color="primary"
-                variant="text"
-                href="https://app.safe.global/new-safe/create"
-                target="_blank"
-              >
-                Deploy new Safe
+              <Button variant="contained" color="error" onClick={logOut} sx={{ ml: 2 }}>
+                Disconnect
               </Button>
-            )}
-
-            <Button variant="contained" color="error" onClick={logOut} sx={{ ml: 2 }}>
-              Disconnect
+            </>
+          ) : (
+            <Button variant="contained" onClick={logIn}>
+              Connect
             </Button>
-          </>
-        ) : (
-          <Button variant="contained" onClick={logIn}>
-            Connect
+          )}
+        </Box>
+      </StyledAppBar>
+
+      <Dialog open={isSafeModalOpen} onClose={handleCloseSafeModal}>
+        <DialogTitle>Select Safe</DialogTitle>
+        <DialogContent>
+          <Input
+            type="text"
+            value={safeInputValue}
+            onChange={(e) => setSafeInputValue(e.target.value)}
+            fullWidth
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseSafeModal}>Cancel</Button>
+          <Button onClick={handleSelectSafe} color="primary">
+            Save
           </Button>
-        )}
-      </Box>
-    </StyledAppBar>
-  )
-}
+        </DialogActions>
+      </Dialog>
+    </>
+  );
+};
 
 const StyledAppBar = styled(MuiAppBar)`
   && {
@@ -87,6 +117,6 @@ const StyledAppBar = styled(MuiAppBar)`
     border-bottom: 2px solid ${({ theme }) => theme.palette.background.paper};
     box-shadow: none;
   }
-`
+`;
 
-export default AppBar
+export default AppBar;
