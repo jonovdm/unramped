@@ -7,12 +7,9 @@
 [submodule "solidity-forge/lib/zodiac"]
 	path = solidity-forge/lib/zodiac
 	url = https://github.com/gnosis/zodiac
-[submodule "solidity-forge/lib/safe-contracts"]
-	path = solidity-forge/lib/safe-contracts
-	url = https://github.com/safe-global/safe-contracts
 [submodule "solidity-forge/lib/openzeppelin-contracts-upgradeable"]
 	path = solidity-forge/lib/openzeppelin-contracts-upgradeable
 	url = https://github.com/OpenZeppelin/openzeppelin-contracts-upgradeable
-[submodule "functions-hardhat-starter-kit"]
-	path = functions-hardhat-starter-kit
-	url = https://github.com/smartcontractkit/functions-hardhat-starter-kit.git
+[submodule "solidity-forge/lib/safe-contracts"]
+	path = solidity-forge/lib/safe-contracts
+	url = https://github.com/safe-global/safe-contracts
