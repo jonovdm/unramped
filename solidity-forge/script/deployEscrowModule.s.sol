@@ -18,7 +18,7 @@ contract deployEscrowModuleScript is Script {
 
     //currently set for mumbai
     address safe = 0xf531015eED9fedb529B305665515F730603DF765;
-    address rampManager = 0x98bD81e847f0ed1cF802Fd9b8ABF8936485487Fe;
+    address rampManager = 0x0801A120d9aBC43623cEcc2631C29DDF873878c4; //nnew
     address functionsConsumer = 0x7C78d96E24170D640E3118cfF662FF531ADe63f2;
 
     function run() public {

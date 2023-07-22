@@ -29,6 +29,7 @@ contract RampManager {
 
     event MakerOnboarded(uint256 indexed nullifierHash, address indexed escrow);
     event OrderCreated(bytes32 indexed orderID, address indexed escrow);
+    event OrderFulfilled(bytes32 indexed orderID, address indexed escrow, address indexed taker);
 
     /// @dev escrowModule => nullifierHash
     mapping(address => uint256) private _nullifierHashs;
@@ -36,7 +37,7 @@ contract RampManager {
     mapping(uint256 => address) private _escrowModules;
 
     mapping(bytes32 => Order) private _orders;
-    // bytes32[] orderList; // list of orders
+    bytes32[] public orderList; // list of orders
 
     // mapping(address => mapping(uint256 => Order)) public orders;
     // mapping(address => uint256) public ordersIndex;
@@ -73,13 +74,6 @@ contract RampManager {
     }
 
     function getOrder(bytes32 _orderID) public view returns (Order memory) {
-        //@todo validate that _orders[_orderID] exists
-        return _orders[_orderID];
-    }
-
-    function getOrders(bytes32 _orderID) public view returns (Order memory) {
-        //@todo validate that _orders[_orderID] exists
-        // Order memory order = _orders[_orderID];
         return _orders[_orderID];
     }
 
@@ -106,9 +100,10 @@ contract RampManager {
         _nullifierHashs[_escrow] = _nullifierHash;
         // IEscrowModule(_escrow).activateModule();
         //@todo ensure the maker has set up a monerium account?
-        worldId.verifyProof(
-            root, 1, abi.encodePacked(msg.sender).hashToField(), _nullifierHash, externalNullifier, proof
-        );
+        //@audit verification of proofs not working
+        // worldId.verifyProof(
+        //     root, 1, abi.encodePacked(msg.sender).hashToField(), _nullifierHash, externalNullifier, proof
+        // );
     }
 
     function createOrder(
@@ -121,9 +116,10 @@ contract RampManager {
         address safe = IEscrowModule(_escrow).avatar();
         require(baseAsset.balanceOf(safe) >= _baseAmount, "Need moar EURe");
         require(_requestedAmount > 0, "!requestedAmount");
-        require(_requestedAsset == address(0), "!requestedAsset");
-        //@todo get the nonce of the safe
-        uint256 safeNonce = uint256(1);
+        require(_requestedAsset != address(0), "!requestedAsset");
+        uint256 safeNonce = uint256(block.timestamp);
+
+        ///@todo
         bytes32 orderID = _createOrderID(_escrow, safeNonce);
         // struct Order {
         //     bytes32 orderID;
@@ -153,7 +149,8 @@ contract RampManager {
             uint256(0)
         );
         _orders[orderID] = order;
-        // orderList.push(orderID);
+        orderList.push(orderID);
+        emit OrderCreated(orderID, _escrow);
     }
 
     //any taker can fulfill order
@@ -171,6 +168,7 @@ contract RampManager {
         IERC20(order.requestedAsset).safeTransfer(order.escrow, order.requestedAmount);
         order.taker = msg.sender;
         _orders[_orderID] = order;
+        emit OrderFulfilled(_orderID, order.escrow, msg.sender);
     }
 
     //@todo allow the order to be cancelled if the monerium transfer doesn't happen after 1 hour

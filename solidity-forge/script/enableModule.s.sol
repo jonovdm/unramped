@@ -17,7 +17,7 @@ contract enableModuleScript is Script {
 
     //currently set for mumbai
     address makerSafe = 0xf531015eED9fedb529B305665515F730603DF765;
-    address escrowModule = 0x71CB8316Be0294519128Ca9f3243542dbfB9CF7c;
+    address escrowModule = 0x22e7dd4D8bc92ed7C929D20ec7C3d01a21fCc820; //nnew
 
     function run() public {
         address deployer = vm.addr(vm.envUint("PRIVATE_KEY"));

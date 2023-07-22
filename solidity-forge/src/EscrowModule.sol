@@ -14,6 +14,8 @@ contract EscrowModule is Module {
     INounsLib public nounsLib;
     address private rampManager;
     uint256 public volume = 0;
+
+    event OrderReleased(bytes32 indexed orderID, address indexed escrow, address indexed taker);
     // string public dataURI;
 
     constructor(address _fundSafe, address _rampManager, address _functionsConsumer, address _deployer) {
@@ -86,6 +88,7 @@ contract EscrowModule is Module {
         IERC20(order.requestedAsset).safeApprove(this.avatar(), order.requestedAmount);
         IERC20(order.requestedAsset).safeTransfer(this.avatar(), order.requestedAmount);
         IRampManager(rampManager).completeOrder(_orderID);
+        emit OrderReleased(_orderID, order.escrow, order.taker);
     }
 
     //@todo 1inch swap
