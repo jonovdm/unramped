@@ -22,7 +22,7 @@ if (moneriumResponse.error) {
     throw Error("Request failed, try checking the params provided")
 }
 
-console.log(moneriumResponse)
+// console.log(moneriumResponse)
 
 // gets the Base Experience, Weight, Height of Pokemon
 const reqData = moneriumResponse.data
@@ -38,12 +38,15 @@ const myData = {
     token_type: reqData.token_type
 }
 
-const orderId = args[0]
+const memo = args[0]
 const orderRequest = Functions.makeHttpRequest({
-    url: `https://api.monerium.dev/orders/${orderId}`,
+    url: `https://api.monerium.dev/orders?`,
     method: "GET",
     headers: {
         "Authorization": "Bearer " + myData.access_token
+    },
+    params: {
+        memo: memo
     }
 })
 
@@ -55,17 +58,18 @@ if (orderResponse.error) {
     throw Error("Request failed, try checking the params provided")
 }
 
-console.log(orderResponse)
-
-// gets the Base Experience, Weight, Height of Pokemon
 const orderReqData = orderResponse.data
+
+// console.log(JSON.stringify(orderReqData))
+
+// This will get the first result with this memo => memo's would always be unique
 // Use JSON.stringify() to convert from JSON object to JSON string
 // Finally, use the helper Functions.encodeString() to encode from string to bytes
-if (orderReqData.meta.state == "processed") {
+if (orderReqData[0].meta.state == "processed") {
     return Functions.encodeUint256(1)
 }
 else {
     return Functions.encodeString(0)
 }
 
-//on UI use orderID -> 1dc5dcec-20c0-11ee-ad2d-92520e0bb667 as Argument
+//on UI use memo -> smart contract orderID bytes as Argument
