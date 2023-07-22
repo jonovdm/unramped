@@ -9,11 +9,12 @@ import "./IRampManager.sol";
 contract EscrowModule is Module {
     using SafeERC20 for IERC20;
 
+    FunctionsConsumer public functionsConsumer;
     address private rampController;
     address private rampManager;
 
-    constructor(address _fundSafe, address _rampController, address _rampManager) {
-        bytes memory initializeParams = abi.encode(_fundSafe, _rampController, _rampManager);
+    constructor(address _fundSafe, address _rampController, address _rampManager, address _functionsConsumer) {
+        bytes memory initializeParams = abi.encode(_fundSafe, _rampController, _rampManager, _functionsConsumer);
         setUp(initializeParams);
     }
 
@@ -21,8 +22,8 @@ contract EscrowModule is Module {
     /// @param initializeParams Parameters of initialization encoded
     function setUp(bytes memory initializeParams) public virtual override initializer {
         //This func is needed for modules as they are minimal proxies pointing to a master copy so its like a constructor work around
-        (address _fundSafe, address _rampController, address _rampManager) =
-            abi.decode(initializeParams, (address, address, address));
+        (address _fundSafe, address _rampController, address _rampManager, address _functionsConsumer) =
+            abi.decode(initializeParams, (address, address, address, address));
         __Ownable_init(_fundSafe);
         //This module will execute tx's on behalf of this avatar (aka sc wallet)
         setAvatar(_fundSafe);
@@ -32,6 +33,8 @@ contract EscrowModule is Module {
         // define the unramped controller
         rampController = _rampController;
         rampManager = _rampManager;
+        functionsConsumer = FunctionsConsumer(_functionsConsumer);
+
         //@todo if the chain is polygon, worldcoin id needs to be activated
     }
 
@@ -52,11 +55,26 @@ contract EscrowModule is Module {
     }
 
     // this will run executeRequest on the chainlink function
-    function verifyMoneriumOrder() external {}
+    function verifyMoneriumOrder(string calldata _source, string _orderId, uint64 _subscriptionId, uint32 _gasLimit)
+        external
+    {
+        string memory args = [orderId]; //@audit from memory this may cause issue potentially try push to a static sized array
+        bytes32 assignedReqID = functionsConsumer.executeRequest(_source, bytes(""), args, _subscriptionId, _gasLimit);
+        //Types for executRequest
+        // string calldata source,
+        // bytes calldata secrets,
+        // string[] calldata args,
+        // uint64 subscriptionId,
+        // uint32 gasLimit
+
+        //returning this for error checking only
+        return assignedReqID;
+    }
 
     // this will get the result of the chainlink function
     function _checkMoneriumOrder() internal returns (uint256) {
-        // retu
+        bytes latestResponse = functionsConsumer.latestResponse();
+        return string(latestResponse);
     }
 
     //@todo allow this to be called by anyone after a minute certain amount of time & a reimbursement of gas using maker's fee
@@ -66,7 +84,7 @@ contract EscrowModule is Module {
         require(!order.complete, "order already completed");
         //@todo increment noun volume logic
         //@todo check status of monerium transfer using chainlink functions using the monerium order id;
-        require(_checkMoneriumOrder() == 1, "sry order not processed");
+        require(_checkMoneriumOrder() == "1", "sry order not processed");
         IERC20(order.requestedAsset).safeApprove(this.avatar(), order.requestedAmount);
         IERC20(order.requestedAsset).safeTransfer(this.avatar(), order.requestedAmount);
         //@todo how to only allow escrow modules to complete these orders?
