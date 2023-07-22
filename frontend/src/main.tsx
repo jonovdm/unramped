@@ -9,6 +9,8 @@ import Monerium from './components/monerium/Monerium'
 import App from './App'
 
 import './index.css'
+import WorldCoin from './components/worldcoin/WorldCoin'
+import { XMTPProvider } from './contexts/xmtpContext';
 
 const router = createBrowserRouter([
   {
@@ -22,18 +24,22 @@ const router = createBrowserRouter([
       },
       {
         path: '/orders',
-        element: <Orders />
+        element: <XMTPProvider><Orders /></XMTPProvider>
       },
       {
         path: 'monerium',
         element: <Monerium />
+      },
+      {
+        path: 'login',
+        element: <WorldCoin />
       }
     ]
   }
 ])
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
-  <SafeThemeProvider mode="dark">
+  <SafeThemeProvider mode="light">
     {(safeTheme) => (
       <ThemeProvider theme={safeTheme}>
         <CssBaseline />

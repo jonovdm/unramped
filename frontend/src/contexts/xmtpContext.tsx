@@ -9,7 +9,7 @@ export const XMTPContext = createContext<XMTPClient | null>(null);
 
 export const XMTPProvider = ({ children }: PropsWithChildren) => {
     const { isLoggedIn, provider: authProvider } = useAuth();
-    console.log(authProvider)
+    // console.log(authProvider)
     if (!isLoggedIn) return <Disconnected />
 
     // Return a placeholder if authProvider or selectedSafe is not available
@@ -20,13 +20,23 @@ export const XMTPProvider = ({ children }: PropsWithChildren) => {
     const [xmtpClient, setXmtpClient] = useState<XMTPClient | null>(null);
 
     useEffect(() => {
-        if (!safeOwner) {
+        // console.trace("xmtpClient", xmtpClient)
+        if (!safeOwner || xmtpClient) {
             return;
         }
-        console.log(safeOwner)
-        XMTPClient.create(safeOwner, { env: 'production' })
-            .then(setXmtpClient);
-    }, [safeOwner]);
+        // Get the keys using a valid Signer. Save them somewhere secure.
+        // const keys = await XMTPClient.getKeys(safeOwner);
+        // // Create a client using keys returned from getKeys
+        // console.log("keys", keys)
+        // localStorage.setItem("xmtpKeys", keys.toString());
+        // // console.log(safeOwner)
+        // console.log(xmtpClient)
+        // if (keys) {
+        //     XMTPClient.create(null, { env: 'dev', privateKeyOverride: keys }).then(setXmtpClient);
+        // } else {
+        XMTPClient.create(safeOwner, { env: 'production' }).then(setXmtpClient);
+        // }
+    }, [safeOwner, xmtpClient])
 
     return (
         <XMTPContext.Provider value={xmtpClient}>
