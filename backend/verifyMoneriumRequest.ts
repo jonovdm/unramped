@@ -14,7 +14,7 @@ const main = async () => {
     const tx = await consumer.executeRequest(
         source,
         "0x",
-        ["8lRgo9PRSvqTgWENdTf-MQ", "I just uploaded euros to a blockchain!"],
+        ["8lRgo9PRSvqTgWENdTf-MQ", "0x8c2742b910b41fbe4391b524d8bd820d606706e70a37e94c80f686d2a68ab92b"],
         1965,
         300000
     )
