@@ -66,8 +66,8 @@ const AuthProvider = ({ children }: AuthContextProviderProps) => {
         web3AuthNetwork: 'testnet',
         chainConfig: {
           chainNamespace: CHAIN_NAMESPACES.EIP155,
-          chainId: '0x5',
-          rpcTarget: 'https://rpc.ankr.com/eth_goerli'
+          chainId: '0x13881',
+          rpcTarget: 'https://rpc.ankr.com/polygon_mumbai'
         },
         uiConfig: {
           theme: 'light',

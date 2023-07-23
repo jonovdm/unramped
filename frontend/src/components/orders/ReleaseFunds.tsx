@@ -10,15 +10,15 @@ import {
 import { BigNumber, ethers } from 'ethers'
 import { useAuth } from '../../AuthContext'
 
-import { fulfill } from '../../calls'
+import { release } from '../../calls'
 interface FulfillOrderModalProps {
     open: boolean;
-    onClose: () => void;
-    onConfirm: () => void;
+    onClose: any;
+    onConfirm: any;
     order: any
 }
 
-const FulfillOrderModal: React.FC<FulfillOrderModalProps> = ({ open, onClose, onConfirm, order }) => {
+const ReleaseOrderModal: React.FC<FulfillOrderModalProps> = ({ open, onClose, onConfirm, order }) => {
     const { isLoggedIn, selectedSafe, provider: authProvider } = useAuth()
     const handleConfirm = async () => {
         console.log(order);
@@ -27,7 +27,7 @@ const FulfillOrderModal: React.FC<FulfillOrderModalProps> = ({ open, onClose, on
             const safeOwner = provider.getSigner();
             console.log(safeOwner)
             if (safeOwner) {
-                const x = await fulfill(order.orderID, safeOwner, order.requestedAmount + "");
+                const x = await release(order.orderID, safeOwner);
                 console.log(x)
             }
             // Process the order data here (e.g., submit it to a server)
@@ -39,10 +39,10 @@ const FulfillOrderModal: React.FC<FulfillOrderModalProps> = ({ open, onClose, on
 
     return (
         <Dialog open={open} onClose={onClose}>
-            <DialogTitle>Fulfill Order</DialogTitle>
+            <DialogTitle>Complete Order</DialogTitle>
             <DialogContent>
                 <DialogContentText>
-                    Are you sure you want to fulfill this order? This action cannot be undone.
+                    Do you want to release the funds and complete the transaction?
                 </DialogContentText>
             </DialogContent>
             <DialogActions>
@@ -55,4 +55,4 @@ const FulfillOrderModal: React.FC<FulfillOrderModalProps> = ({ open, onClose, on
     );
 };
 
-export default FulfillOrderModal;
+export default ReleaseOrderModal;

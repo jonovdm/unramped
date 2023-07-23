@@ -27,7 +27,7 @@ interface FormData {
 
 const OrderModal: React.FC<OrderModalProps> = ({ open, onClose, onSubmit }) => {
     const [formData, setFormData] = useState<FormData>({
-        requestedAsset: '',
+        requestedAsset: 'USDC',
         requestedAmount: '',
         baseAmount: '',
     });
@@ -58,7 +58,7 @@ const OrderModal: React.FC<OrderModalProps> = ({ open, onClose, onSubmit }) => {
                 <FormControl fullWidth variant="outlined" margin="normal">
                     <TextField
                         name="requestedAmount"
-                        label="Requested Amount"
+                        label="Amount to Buy"
                         type="number"
                         value={formData.requestedAmount}
                         onChange={handleChange}
@@ -70,9 +70,9 @@ const OrderModal: React.FC<OrderModalProps> = ({ open, onClose, onSubmit }) => {
                                         value={formData.requestedAsset}
                                         onChange={handleChange}
                                     >
-                                        <MenuItem value="USD">USD</MenuItem>
-                                        <MenuItem value="EUR">EUR</MenuItem>
-                                        <MenuItem value="GBP">GBP</MenuItem>
+                                        <MenuItem value="USDC">USDC</MenuItem>
+                                        <MenuItem value="DAI">DAI</MenuItem>
+                                        <MenuItem value="USDT">USDT</MenuItem>
                                         {/* Add more currencies as needed */}
                                     </Select>
                                 </InputAdornment>
@@ -83,7 +83,7 @@ const OrderModal: React.FC<OrderModalProps> = ({ open, onClose, onSubmit }) => {
                 <FormControl fullWidth variant="outlined" margin="normal">
                     <TextField
                         name="baseAmount"
-                        label="Base Amount"
+                        label="EURe To Sell"
                         type="number"
                         value={formData.baseAmount}
                         onChange={handleChange}

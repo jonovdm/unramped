@@ -1,4 +1,4 @@
-[
+export const ERC20 = [
     {
         constant: true,
         inputs: [],

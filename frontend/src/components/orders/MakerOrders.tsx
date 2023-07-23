@@ -15,17 +15,27 @@ import ReviewsOutlinedIcon from '@mui/icons-material/ReviewsOutlined';
 import Tooltip from '@mui/material/Tooltip'
 import OrderModal from './CreateOrder';
 import { AuthContext, Currency, OrderState, PaymentStandard } from '@monerium/sdk'
+import Safe, { EthersAdapter } from '@safe-global/protocol-kit'
+import NewReleasesOutlinedIcon from '@mui/icons-material/NewReleasesOutlined';
+import ReleaseOrderModal from './ReleaseFunds'
 
 import Monerium from '../../components/monerium/Monerium'
 import TakerOrders from './TakerOrders'
 
 import { useAuth } from '../../AuthContext'
 
+import { create, shortenAddress } from '../../calls'
+
 const isSessionValid = (sessionId: string) => sessionId.length === 28;
+const previousOrders = [
+    { orderID: "0xdfbb6499d5eb934c5de43da8d3b00c92d43cf395b6436d943c0fdc3574912e8dr", created: 'Order 1', baseAmount: 1, requestedAmount: 1, complete: true, safe: "0xa6b71e26c5e0845f74c812102ca7114b6a896ab2" },
+    { orderID: "0xdfbb6499d5eb934c5de43da8d3b00c92d43cf395b6436d943c0fdc3574912e8e", created: 'Order 2', baseAmount: 1, requestedAmount: 1, complete: true, safe: "0xa6b71e26c5e0845f74c812102ca7114b6a896ab1" },
+    { orderID: "0xdfbb6499d5eb934c5de43da8d3b00c92d43cf395b6436d943c0fdc3574912e8q", created: 'Order 3', baseAmount: 1, requestedAmount: 1, complete: true, safe: "0xa6b71e26c5e0845f74c812102ca7114b6a896ab3" },
+];
 const orders = [
-    { orderID: 1, created: 'Order 1', baseAmount: 10, requestedAmount: 100, complete: true },
-    { orderID: 2, created: 'Order 2', baseAmount: 10, requestedAmount: 100, complete: false },
-    { orderID: 3, created: 'Order 3', baseAmount: 10, requestedAmount: 100, complete: true },
+    { orderID: "0xdfbb6499d5eb934c5de43da8d3b00c92d43cf395b6436d943c0fdc3574912e8e", created: 'Order 1', baseAmount: 1, requestedAmount: 1, complete: false, safe: "0x54c849be3a8494fb53d0a9b4927ed28660e6228c" },
+    { orderID: "0xdfbb6499d5eb934c5de43da8d3b00c92d43cf395b6436d943c0fdc3574912e8h", created: 'Order 2', baseAmount: 1, requestedAmount: 1, complete: false, safe: "0xa6b71e26c5e0845f74c812102ca7114b6a896ab6" },
+    { orderID: "0xdfbb6499d5eb934c5de43da8d3b00c92d43cf395b6436d943c0fdc3574912e8z", created: 'Order 3', baseAmount: 1, requestedAmount: 1, complete: false, safe: "0xa6b71e26c5e0845f74c812102ca7114b6a896ab7" },
 ];
 
 // struct Order {
@@ -51,6 +61,7 @@ function MakerOrders() {
 
     const [isModalOpen, setModalOpen] = useState(false);
     const [isTransferOpen, setTransferOpen] = useState(false);
+    const [isReleaseOpen, setReleaseOpen] = useState(false);
     const { isLoggedIn, selectedSafe, provider: authProvider } = useAuth()
     const cumulativeVolume = BigNumber.from("1000000000000000000000")
 
@@ -62,20 +73,47 @@ function MakerOrders() {
         setModalOpen(false);
     };
 
+    const handleReleaseOpen = (order: any) => {
+        setOrder(order)
+        setReleaseOpen(true);
+    };
     const handleTransferOpen = (order: any) => {
+        setOrder(order)
         setTransferOpen(true);
     };
     const handleTransferClose = () => {
         setTransferOpen(false);
     };
+    const handleReleaseClose = () => {
+        setReleaseOpen(false);
+    };
 
-    const handleOrderSubmit = (formData: any) => {
-        // Process the order data here (e.g., submit it to a server)
+    const handleOrderSubmit = async (formData: any) => {
         console.log('Order data:', formData);
+        if (authProvider) {
+            const provider = new ethers.providers.Web3Provider(authProvider);
+            const safeOwner = provider.getSigner();
+            const ethAdapter = new EthersAdapter({ ethers, signerOrProvider: safeOwner })
+            console.log(ethAdapter)
+            console.log(safeOwner)
+            if (safeOwner) {
+                const x = await create(safeOwner, formData.baseAmount, formData.requestedAmount);
+                console.log(x)
+            }
+            // Process the order data here (e.g., submit it to a server)
+            // console.log('Order data:', formData);
+        };
     };
 
     useEffect(() => {
         ; (async () => {
+            // if (authProvider) {
+            //     const provider = new ethers.providers.Web3Provider(authProvider);
+            //     const safeOwner = provider.getSigner();
+            //     const ethAdapter = new EthersAdapter({ ethers, signerOrProvider: safeOwner })
+            //     const x = await create(safeOwner, "1", "1");
+            //     console.log(x)
+            // };
             // const pack = new StripePack({
             //     stripePublicKey: import.meta.env.VITE_STRIPE_PUBLIC_KEY,
             //     onRampBackendUrl: import.meta.env.VITE_SAFE_STRIPE_BACKEND_BASE_URL
@@ -139,6 +177,12 @@ function MakerOrders() {
                             </Stack>
                         </Grid>
                     </Grid>
+                    <ReleaseOrderModal
+                        order={order}
+                        onClose={handleReleaseClose}
+                        onConfirm={handleOrderSubmit}
+                        open={isTransferOpen}
+                    ></ReleaseOrderModal>
                     {messagingWith && (<SecureChat
                         orderID={"Message 0x66"}
                         peer={messagingWith?.peer || ""}
@@ -164,7 +208,7 @@ function MakerOrders() {
                             <TableBody>
                                 {orders.map((order) => (
                                     <TableRow key={order.orderID}>
-                                        <TableCell>{order.orderID}</TableCell>
+                                        <TableCell>{shortenAddress(order.orderID + "")}</TableCell>
                                         <TableCell>{order.baseAmount} EURe</TableCell>
                                         <TableCell>{order.requestedAmount} USDC</TableCell>
                                         <TableCell>{order.requestedAmount}</TableCell>
@@ -176,13 +220,13 @@ function MakerOrders() {
                                                 </ExtraIconButton>
                                             </Tooltip>
                                             <Tooltip title="Pay Buyer">
-                                                {/* {authContext && (
-                                            <Button variant="contained" onClick={handleTransferOpen(order)}>
-                                                Transfer
-                                            </Button>
-                                        )} */}
                                                 <ExtraIconButton onClick={() => handleTransferOpen(order)}>
                                                     <EuroIcon fontSize="medium" />
+                                                </ExtraIconButton>
+                                            </Tooltip>
+                                            <Tooltip title="Release Funds">
+                                                <ExtraIconButton onClick={() => handleReleaseOpen(order)}>
+                                                    <NewReleasesOutlinedIcon fontSize="medium" />
                                                 </ExtraIconButton>
                                             </Tooltip>
                                             <Tooltip title="View Review">
@@ -209,9 +253,9 @@ function MakerOrders() {
                                 </TableRow>
                             </TableHead>
                             <TableBody>
-                                {orders.map((order) => (
+                                {previousOrders.map((order) => (
                                     <TableRow key={order.orderID}>
-                                        <TableCell>{order.orderID}</TableCell>
+                                        <TableCell>{shortenAddress(order.orderID + "")}</TableCell>
                                         <TableCell>{order.baseAmount} EURe</TableCell>
                                         <TableCell>{order.requestedAmount} USDC</TableCell>
                                         <TableCell>{order.requestedAmount}</TableCell>
