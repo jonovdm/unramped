@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.13;
+pragma solidity ^0.8.19;
 
 import "forge-std/Test.sol";
 import "../src/EscrowModule.sol";
@@ -8,6 +8,7 @@ import "../src/RampManager.sol";
 import "../src/IRampManager.sol";
 import "../src/MockSafe.sol";
 import "../src/IWorldID.sol";
+import "../src/ISafeL2.sol";
 import "forge-std/console.sol";
 
 contract EscrowModuleTest is Test {
@@ -27,11 +28,11 @@ contract EscrowModuleTest is Test {
             "register",
             mumbaiEure
         );
-        // address rampManager = 0x0801A120d9aBC43623cEcc2631C29DDF873878c4;
         address functionsConsumer = 0x7C78d96E24170D640E3118cfF662FF531ADe63f2;
-        IEscrowModule escrow = new EscrowModule(safe, rampManager, functionsConsumer, maker);
+        EscrowModule escrowModule = new EscrowModule(makerSafe, address(rampManager), functionsConsumer, maker);
 
-        //another option is --private-key $PRIVATE_KEY in cmd line when the script only needs one pk
+        // //another option is --private-key $PRIVATE_KEY in cmd line when the script only needs one pk
+        //enable module
         uint256 zero = 0;
         bytes memory prevalidSignature = abi.encode(maker, zero);
         bytes memory paddedData = new bytes(65);
@@ -49,7 +50,7 @@ contract EscrowModuleTest is Test {
         safe.execTransaction(makerSafe, 0, enableData, 0, 0, 0, 0, address(0), address(0), paddedData);
     }
 
-    function testIncrement() public {
-        console.log("1");
+    function testFlow() public {
+        // rampManager.onboardMaker()
     }
 }
