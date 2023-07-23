@@ -17,6 +17,7 @@
     "@nouns/sdk": "^0.4.0",
     "@openzeppelin/contracts": "^4.9.2",
     "@sismo-core/sismo-connect-solidity": "^0.0.16",
+    "axios": "^1.4.0",
     "dotenv": "^16.3.1",
     "ethers": "^5.7.2",
     "hardhat": "^2.12.2",
