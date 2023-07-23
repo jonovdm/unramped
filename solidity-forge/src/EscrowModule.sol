@@ -69,10 +69,10 @@ contract EscrowModule is Module {
     }
 
     // this will get the result of the chainlink function
-    function _checkMoneriumOrder() internal view returns (string memory) {
+    function _checkMoneriumOrder() internal view returns (bytes memory) {
         //later on we need a uint value but its less lines of code to convert from bytes to string to uint
         bytes memory latestResponse = functionsConsumer.latestResponse();
-        return string(latestResponse);
+        return latestResponse;
     }
 
     //@todo allow this to be called by anyone after a minute certain amount of time & a reimbursement of gas using maker's fee
@@ -83,10 +83,12 @@ contract EscrowModule is Module {
         volume = volume + order.requestedAmount;
         // dataURI = nounsLib.generateSVG(volume, address(this));
         //check status of monerium transfer using chainlink functions using the monerium order id;
-        string memory checkResult = _checkMoneriumOrder();
-        require(uint256(keccak256(abi.encodePacked(checkResult))) == 1, "sry order not processed");
-        IERC20(order.requestedAsset).safeApprove(this.avatar(), order.requestedAmount);
-        IERC20(order.requestedAsset).safeTransfer(this.avatar(), order.requestedAmount);
+        bytes memory checkResult = _checkMoneriumOrder();
+        bytes memory byteOne = hex"31";
+        // require(uint256(keccak256(abi.encodePacked(checkResult))) == 1, "sry order not processed");
+        require(keccak256(checkResult) == keccak256(byteOne), "sry order not processed");
+        // IERC20(order.requestedAsset).safeApprove(this.avatar(), order.requestedAmount);
+        IERC20(order.requestedAsset).transfer(this.avatar(), order.requestedAmount);
         IRampManager(rampManager).completeOrder(_orderID);
         emit OrderReleased(_orderID, order.escrow, order.taker);
     }

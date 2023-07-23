@@ -7,10 +7,10 @@ import fs from "fs";
 
 const safeAddr = "0xf531015eED9fedb529B305665515F730603DF765"
 const takerAddr = "0xF89f224eF382f6C3D9D43876E16a04A8dDF4c861"
-const rampManagerAddr = "0x0A42e9D4B45fF6d3A5914E78ef544fc11Ab0BD65"
-const escrowModuleAddr = "0x2C2f28f656aDe7766c24d498fD1cdFAE8A40AE3c"
+const rampManagerAddr = "0xd6511f3b71a2f607c038e0e161Dd4E2164563085"
+const escrowModuleAddr = "0xF1857379227848F644e096a2fC7AE2303AafDec2"
 
-const orderID = "0x8c2742b910b41fbe4391b524d8bd820d606706e70a37e94c80f686d2a68ab92b"
+const orderID = "0x910fd194f2fca37b6b13ca1727a3d2a5e6a13d13413f0e763e5090457c602031"
 
 function calcPrevalidSig(from: string, initialString: string = '0x') {
     //When we have a single owner on a safe, the output of this function can be used as the signature parameter on a execTransaction call on a safe
@@ -92,10 +92,10 @@ async function verify() {
     // //     uint32 _gasLimit
     // // ) public returns (bytes32) {
     const source = fs.readFileSync("./moneriumCLFunction.js", "utf8").toString()
-    console.log(source);
+    // console.log(source);
     const verifyOrderTx = await escrowModule.connect(taker).verifyMoneriumOrder(
         source,
-        ["qiLiemIBT_CAzigxYPcpHQ", orderID],
+        ["BNT6cED4TYu_voZ8lu3lkg", orderID],
         1965,
         300000
     )
@@ -104,7 +104,8 @@ async function verify() {
 async function release() {
     //releaseFunds
     //function releaseFunds(bytes32 _orderID) public {
-    const releaseFundsTx = await escrowModule.releaseFunds()
+    const releaseFundsTx = await escrowModule.releaseFunds(orderID, { gasLimit: 10000000 })
+    console.log(releaseFundsTx)
 }
 async function setupContracts() {
     //get provider and wallet
@@ -117,9 +118,9 @@ async function setupContracts() {
 
     // await fulfill(orderID)
 
-    await verify();
+    // await verify();
 
-    // await release();
+    await release();
 
     // //redeploy escrow external
     // //taker eoa

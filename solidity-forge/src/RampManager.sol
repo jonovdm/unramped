@@ -164,9 +164,7 @@ contract RampManager {
         require(requestedAsset.balanceOf(msg.sender) >= order.requestedAmount, "Need moar monies");
         // require(_order == _order.);
         // send the tokens to the escrow module
-        IERC20(order.requestedAsset).transferFrom(msg.sender, order.escrow, order.requestedAmount);
-        IERC20(order.requestedAsset).safeApprove(order.escrow, order.requestedAmount);
-        IERC20(order.requestedAsset).safeTransfer(order.escrow, order.requestedAmount);
+        requestedAsset.transferFrom(msg.sender, order.escrow, order.requestedAmount);
         order.taker = msg.sender;
         _orders[_orderID] = order;
         emit OrderFulfilled(_orderID, order.escrow, msg.sender);
