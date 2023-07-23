@@ -22,9 +22,9 @@ import { useAuth } from '../../AuthContext'
 
 const isSessionValid = (sessionId: string) => sessionId.length === 28;
 const orders = [
-    { orderID: 1, created: 'Order 1', baseAmount: 10, requestedAmount: 100, complete: true },
-    { orderID: 2, created: 'Order 2', baseAmount: 10, requestedAmount: 100, complete: false },
-    { orderID: 3, created: 'Order 3', baseAmount: 10, requestedAmount: 100, complete: true },
+    { orderID: 1, created: 'Order 1', baseAmount: 10, requestedAmount: 100, complete: true, safe: "0x54c849be3a8494fb53d0a9b4927ed28660e6228b" },
+    { orderID: 2, created: 'Order 2', baseAmount: 10, requestedAmount: 100, complete: false, safe: "0xa6b71e26c5e0845f74c812102ca7114b6a896ab2" },
+    { orderID: 3, created: 'Order 3', baseAmount: 10, requestedAmount: 100, complete: true, safe: "0xa6b71e26c5e0845f74c812102ca7114b6a896ab2" },
 ];
 
 // struct Order {
@@ -101,7 +101,7 @@ function TakerOrders() {
                 <Table>
                     <TableHead>
                         <TableRow>
-                            <TableCell>ID</TableCell>
+                            <TableCell>Seller</TableCell>
                             <TableCell>Buy</TableCell>
                             <TableCell>Sell</TableCell>
                             <TableCell>Rate</TableCell>
@@ -112,7 +112,14 @@ function TakerOrders() {
                     <TableBody>
                         {orders.map((order) => (
                             <TableRow key={order.orderID}>
-                                <TableCell>{order.orderID}</TableCell>
+                                <TableCell>
+                                    <Noun
+                                        safeAddress={order.safe}
+                                        cumulativeVolume={cumulativeVolume}
+                                        size="60"
+                                        tooltip={`${order.safe} ---- Reviews: 3/5`}
+                                    ></Noun>
+                                </TableCell>
                                 <TableCell>{order.baseAmount} EURe</TableCell>
                                 <TableCell>{order.requestedAmount} USDC</TableCell>
                                 <TableCell>{order.requestedAmount}</TableCell>
