@@ -1,7 +1,7 @@
 import { EAS, Offchain, SchemaEncoder, SchemaRegistry } from "@ethereum-attestation-service/eas-sdk";
 import { ethers } from 'ethers';
 
-const pk = "f31cb3a0fc816a3ff02c1d62c49c080321a16cc1de5166b52c9fb62859f9a9d7"
+const pk = "getfromenv"
 const provider = new ethers.providers.JsonRpcProvider("https://eth-sepolia.g.alchemy.com/v2/W_jKBCF_9Oo6vhmu_2Y4mcsu2RyB09_O");
 const signer = new ethers.Wallet(pk, provider);
 const EASContractAddress = "0xC2679fBD37d54388Ce493F1DB75320D236e1815e"; // Sepolia v0.26
