@@ -21,10 +21,8 @@ contract RampManager {
         address requestedAsset;
         uint256 requestedAmount;
         bool complete;
-        uint256[] acceptedChains;
         address taker;
         bytes32 takerIBAN;
-        uint256 takerChain;
     }
 
     event MakerOnboarded(uint256 indexed nullifierHash, address indexed escrow);
@@ -106,13 +104,10 @@ contract RampManager {
         // );
     }
 
-    function createOrder(
-        address _escrow,
-        uint256 _baseAmount,
-        address _requestedAsset,
-        uint256 _requestedAmount,
-        uint256[] calldata _acceptedChains
-    ) external onlyMaker(_escrow) {
+    function createOrder(address _escrow, uint256 _baseAmount, address _requestedAsset, uint256 _requestedAmount)
+        external
+        onlyMaker(_escrow)
+    {
         address safe = IEscrowModule(_escrow).avatar();
         require(baseAsset.balanceOf(safe) >= _baseAmount, "Need moar EURe");
         require(_requestedAmount > 0, "!requestedAmount");
@@ -129,10 +124,8 @@ contract RampManager {
         //     address requestedAsset;
         //     uint256 requestedAmount;
         //     bool complete;
-        //     uint256[] acceptedChains;
         //     address taker;
         //     bytes32 takerIBAN;
-        //     uint256 takerChain;
         // }
         //@todo need to clean up
         Order memory order = Order(
@@ -143,10 +136,8 @@ contract RampManager {
             _requestedAsset,
             _requestedAmount,
             false,
-            _acceptedChains,
             address(0),
-            bytes32(0),
-            uint256(0)
+            bytes32(0)
         );
         _orders[orderID] = order;
         orderList.push(orderID);
