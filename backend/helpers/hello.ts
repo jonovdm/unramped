@@ -7,8 +7,8 @@ import fs from "fs";
 
 const safeAddr = "0xf531015eED9fedb529B305665515F730603DF765"
 const takerAddr = "0xF89f224eF382f6C3D9D43876E16a04A8dDF4c861"
-const rampManagerAddr = "0xd6511f3b71a2f607c038e0e161Dd4E2164563085"
-const escrowModuleAddr = "0xF1857379227848F644e096a2fC7AE2303AafDec2"
+const rampManagerAddr = "0xa007D304BB087EB16183EBCD962A1e7576830c1E"
+const escrowModuleAddr = "0xC1012E53B34c4694FEa5aeC3462A504aC74D3c9F"
 
 const orderID = "0x910fd194f2fca37b6b13ca1727a3d2a5e6a13d13413f0e763e5090457c602031"
 
@@ -114,13 +114,13 @@ async function setupContracts() {
     // await onboard()
 
     // //XXXX
-    // await create()
+    await create()
 
     // await fulfill(orderID)
 
     // await verify();
 
-    await release();
+    // await release();
 
     // //redeploy escrow external
     // //taker eoa

@@ -36,7 +36,7 @@ contract RampManager {
     /// @dev nullifierHash => address
     mapping(uint256 => address) private _escrowModules;
 
-    mapping(bytes32 => Order) private _orders;
+    mapping(bytes32 => Order) public _orders;
     bytes32[] public orderList; // list of orders
 
     // mapping(address => mapping(uint256 => Order)) public orders;
