@@ -144,7 +144,7 @@ function Monerium({ isTransferOpen, setTransferClose, setOrder, order, setAuthCo
           country: 'ES'
         }
       },
-      memo: 'Testing Safe-Monerium integration'
+      memo: '0x8c2742b910b41fbe4391b524d8bd820d606706e70a37e94c80f686d2a68ab92b'
     })
 
     console.log('New proposed transaction', tx)
@@ -175,7 +175,7 @@ function Monerium({ isTransferOpen, setTransferClose, setOrder, order, setAuthCo
         </div>
       ) : (
         <>
-          {/* {!selectedSafe && <DeploySafe />} */}
+          {!selectedSafe && <DeploySafe />}
 
           {selectedSafe && (
             <LoginWithMonerium
