@@ -8,12 +8,16 @@ const { palette } = ImageData; // Used with `buildSVG``
 
 type NounProps = {
     safeAddress: string
-    cumulativeVolume: BigNumber
+    cumulativeVolume: BigNumber,
+    size: string,
+    tooltip: string
 }
 
 const Noun = ({
     safeAddress,
     cumulativeVolume,
+    size,
+    tooltip
 }: NounProps) => {
 
     const hashedAddress = ethers.utils.keccak256(safeAddress);
@@ -37,8 +41,8 @@ const Noun = ({
 
 
     return (
-        <Tooltip title="Noun">
-            <StyledImg src={`data:image/svg+xml;base64,${svgBase64}`} alt="connected Wallet logo" height={'200px'} />
+        <Tooltip title={tooltip}>
+            <StyledImg src={`data:image/svg+xml;base64,${svgBase64}`} alt="connected Wallet logo" height={size + 'px'} />
         </Tooltip>
     );
 }

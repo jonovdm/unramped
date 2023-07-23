@@ -103,6 +103,8 @@ function MakerOrders() {
                                 <Noun
                                     safeAddress={selectedSafe}
                                     cumulativeVolume={cumulativeVolume}
+                                    size="200"
+                                    tooltip={selectedSafe}
                                 ></Noun>
                             </Grid>
                         )}
