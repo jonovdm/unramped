@@ -1,0 +1,217 @@
+import styled from '@emotion/styled'
+import { Theme } from '@mui/material'
+import IconButton from '@mui/material/IconButton'
+import { useEffect, useState, useRef } from 'react'
+import { BigNumber, ethers } from 'ethers'
+import { Grid, TextField, Button } from '@mui/material'
+import { Box, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography, Stack } from '@mui/material';
+import SecureChat from '../SecureChat';
+import ConnectedWalletLabel from '../connected-wallet-label/ConnectedWalletLabel'
+import Noun from '../noun/Noun'
+import MessageIcon from '@mui/icons-material/Message';
+import CurrencyBitcoinOutlinedIcon from '@mui/icons-material/CurrencyBitcoinOutlined';
+import AutoAwesomeOutlinedIcon from '@mui/icons-material/AutoAwesomeOutlined';
+import ReviewsOutlinedIcon from '@mui/icons-material/ReviewsOutlined';
+import Tooltip from '@mui/material/Tooltip'
+import OrderModal from './CreateOrder';
+import { AuthContext, Currency, OrderState, PaymentStandard } from '@monerium/sdk'
+
+import FulfillOrderModal from './FulfillOrder'
+
+import { useAuth } from '../../AuthContext'
+
+const isSessionValid = (sessionId: string) => sessionId.length === 28;
+const orders = [
+    { orderID: 1, created: 'Order 1', baseAmount: 10, requestedAmount: 100, complete: true },
+    { orderID: 2, created: 'Order 2', baseAmount: 10, requestedAmount: 100, complete: false },
+    { orderID: 3, created: 'Order 3', baseAmount: 10, requestedAmount: 100, complete: true },
+];
+
+// struct Order {
+//         bytes32 orderID;
+//         address escrow;
+//         uint256 escrowChain;
+//         uint256 baseAmount;
+//         address requestedAsset;
+//         uint256 requestedAmount;
+//         bool complete;
+//         uint256[] acceptedChains;
+//         address taker;
+//         bytes32 takerIBAN;
+//         uint256 takerChain;
+//     }
+
+function TakerOrders() {
+    const [messagingWith, setMessagingWith] = useState<{ peer: string, product: null }>();
+    const [createOrder, setCreateOrder] = useState<{}>();
+    const [viewReview, setViewReview] = useState<{}>();
+    const [authContext, setAuthContext] = useState<AuthContext>()
+    const [order, setOrder] = useState<any>()
+
+    const [isModalOpen, setModalOpen] = useState(false);
+    const [isTransferOpen, setTransferOpen] = useState(false);
+    const { isLoggedIn, selectedSafe, provider: authProvider } = useAuth()
+    const cumulativeVolume = BigNumber.from("1000000000000000000000")
+
+
+    const handleTransferOpen = (order: any) => {
+        setTransferOpen(true);
+    };
+    const handleTransferClose = () => {
+        setTransferOpen(false);
+    };
+
+    const handleOrderSubmit = () => {
+        // Process the order data here (e.g., submit it to a server)
+        console.log('Order data');
+    };
+
+    useEffect(() => {
+        ; (async () => {
+            // const pack = new StripePack({
+            //     stripePublicKey: import.meta.env.VITE_STRIPE_PUBLIC_KEY,
+            //     onRampBackendUrl: import.meta.env.VITE_SAFE_STRIPE_BACKEND_BASE_URL
+            // })
+
+            // await pack.init()
+
+            // setStripePack(pack)
+        })()
+    }, [])
+
+    return (
+        <Box sx={{ padding: '2rem' }}>
+            <FulfillOrderModal
+                order={order}
+                onClose={handleTransferClose}
+                onConfirm={handleOrderSubmit}
+                open={isTransferOpen}
+            ></FulfillOrderModal>
+            {messagingWith && (<SecureChat
+                orderID={"Message 0x66"}
+                peer={messagingWith?.peer || ""}
+                isOpen={!!messagingWith}
+                onClose={() => setMessagingWith(undefined)}
+                isLoading={false}
+                peerNickname="Maker"
+            />)
+            }
+            <h1>Active Orders</h1>
+            <TableContainer component={Paper}>
+                <Table>
+                    <TableHead>
+                        <TableRow>
+                            <TableCell>ID</TableCell>
+                            <TableCell>Buy</TableCell>
+                            <TableCell>Sell</TableCell>
+                            <TableCell>Rate</TableCell>
+                            <TableCell>Status</TableCell>
+                            <TableCell>Actions</TableCell>
+                        </TableRow>
+                    </TableHead>
+                    <TableBody>
+                        {orders.map((order) => (
+                            <TableRow key={order.orderID}>
+                                <TableCell>{order.orderID}</TableCell>
+                                <TableCell>{order.baseAmount} EURe</TableCell>
+                                <TableCell>{order.requestedAmount} USDC</TableCell>
+                                <TableCell>{order.requestedAmount}</TableCell>
+                                <TableCell>{order.complete ? "Complete" : "Pending"}</TableCell>
+                                <TableCell>
+                                    <Tooltip title="Message Seller">
+                                        <ExtraIconButton onClick={() => setMessagingWith({ peer: "0x66c58e1E3437d64818d7bE00f30CcDF4C859eADf", product: null })}>
+                                            <MessageIcon fontSize="medium" />
+                                        </ExtraIconButton>
+                                    </Tooltip>
+                                    <Tooltip title="Pay Seller">
+                                        {/* {authContext && (
+                                            <Button variant="contained" onClick={handleTransferOpen(order)}>
+                                                Transfer
+                                            </Button>
+                                        )} */}
+                                        <ExtraIconButton onClick={() => handleTransferOpen(order)}>
+                                            <CurrencyBitcoinOutlinedIcon fontSize="medium" />
+                                        </ExtraIconButton>
+                                    </Tooltip>
+                                    <Tooltip title="Leave Review">
+                                        <ExtraIconButton onClick={() => setViewReview({})}>
+                                            <ReviewsOutlinedIcon fontSize="medium" />
+                                        </ExtraIconButton>
+                                    </Tooltip>
+                                </TableCell>
+                            </TableRow>
+                        ))}
+                    </TableBody>
+                </Table>
+            </TableContainer>
+            <h1>Previous Orders</h1>
+            <TableContainer component={Paper}>
+                <Table>
+                    <TableHead>
+                        <TableRow>
+                            <TableCell>ID</TableCell>
+                            <TableCell>Buy</TableCell>
+                            <TableCell>Sell</TableCell>
+                            <TableCell>Rate</TableCell>
+                            <TableCell>Status</TableCell>
+                        </TableRow>
+                    </TableHead>
+                    <TableBody>
+                        {orders.map((order) => (
+                            <TableRow key={order.orderID}>
+                                <TableCell>{order.orderID}</TableCell>
+                                <TableCell>{order.baseAmount} EURe</TableCell>
+                                <TableCell>{order.requestedAmount} USDC</TableCell>
+                                <TableCell>{order.requestedAmount}</TableCell>
+                                <TableCell>{order.complete ? "Complete" : "Pending"}</TableCell>
+                                {/* <TableCell>{order.}</TableCell> */}
+                            </TableRow>
+                        ))}
+                    </TableBody>
+                </Table>
+            </TableContainer>
+        </Box>
+    )
+}
+
+const ConnectContainer = styled(Box)<{
+    theme?: Theme
+}>(
+    ({ theme }) => `
+  
+  border-radius: 10px;
+  border: 1px solid ${theme.palette.border.light};
+  padding: 50px;
+`
+)
+
+const CodeContainer = styled(Box)<{
+    theme?: Theme
+}>(
+    ({ theme }) => `
+  border-radius: 10px;
+  border: 1px solid ${theme.palette.border.light};
+  padding: 16px;
+`
+)
+
+const ConnectedContainer = styled(Box)<{
+    theme?: Theme
+}>(
+    ({ theme }) => `
+  
+  border-radius: 10px;
+  border: 1px solid ${theme.palette.border.light};
+  padding: 40px 32px;
+`
+)
+
+const ExtraIconButton = styled(IconButton)<{
+    theme?: Theme
+}>(
+    ({ theme }) => `
+  border: 1px solid ${theme.palette.border.main};
+`
+)
+
+export default TakerOrders

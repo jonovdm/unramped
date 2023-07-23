@@ -17,6 +17,7 @@ import OrderModal from './CreateOrder';
 import { AuthContext, Currency, OrderState, PaymentStandard } from '@monerium/sdk'
 
 import Monerium from '../../components/monerium/Monerium'
+import TakerOrders from './TakerOrders'
 
 import { useAuth } from '../../AuthContext'
 
@@ -87,137 +88,143 @@ function MakerOrders() {
     }, [])
 
     return (
-        <Box sx={{ padding: '2rem' }}>
-            <OrderModal
-                open={isModalOpen}
-                onClose={handleModalClose}
-                onSubmit={handleOrderSubmit}
-            />
-            <Grid container alignItems="center" spacing={2}>
-                {/* Image on the left */}
-                {selectedSafe && (
-                    <Grid item xs={6} md={2} sx={{ maxWidth: '250px' }}> {/* Set the maximum width to 250px */}
-                        <Noun
-                            safeAddress={selectedSafe}
-                            cumulativeVolume={cumulativeVolume}
-                        ></Noun>
-                    </Grid>
-                )}
+        <div>
+            {selectedSafe ? (
+                <Box sx={{ padding: '2rem' }}>
+                    <OrderModal
+                        open={isModalOpen}
+                        onClose={handleModalClose}
+                        onSubmit={handleOrderSubmit}
+                    />
+                    <Grid container alignItems="center" spacing={2}>
+                        {/* Image on the left */}
+                        {selectedSafe && (
+                            <Grid item xs={6} md={2} sx={{ maxWidth: '250px' }}> {/* Set the maximum width to 250px */}
+                                <Noun
+                                    safeAddress={selectedSafe}
+                                    cumulativeVolume={cumulativeVolume}
+                                ></Noun>
+                            </Grid>
+                        )}
 
-                {/* Buttons on the right */}
-                <Grid item xs={6} md={10}>
-                    <Stack direction="column" spacing={2} alignItems="flex-start">
-                        {/* First button */}
-                        <Typography variant="h2" fontWeight={900}>
-                            Total Volume: 110,201 EURe
-                        </Typography>
-                        <Typography variant="h4" p={0} fontWeight={700}>
-                            Total Orders: 100
-                        </Typography>
-                        <Typography variant="h4" p={0} fontWeight={700}>
-                            Rating: 3/5
-                        </Typography>
-                        <Typography variant="h4" p={0} fontWeight={700}>
-                            Safe: {selectedSafe}
-                        </Typography>
-                        <Button variant="contained" onClick={handleModalOpen}>
-                            Create Order
-                        </Button>
-                        <Monerium
-                            authContext={authContext}
-                            setAuthContext={setAuthContext}
-                            isTransferOpen={isTransferOpen}
-                            setTransferClose={handleTransferClose}
-                            order={order}
-                            setOrder={setOrder}
-                        />
-                    </Stack>
-                </Grid>
-            </Grid>
-            {messagingWith && (<SecureChat
-                orderID={"Message 0x66"}
-                peer={messagingWith?.peer || ""}
-                isOpen={!!messagingWith}
-                onClose={() => setMessagingWith(undefined)}
-                isLoading={false}
-                peerNickname="Maker"
-            />)
-            }
-            <h1>Active Orders</h1>
-            <TableContainer component={Paper}>
-                <Table>
-                    <TableHead>
-                        <TableRow>
-                            <TableCell>ID</TableCell>
-                            <TableCell>Sell</TableCell>
-                            <TableCell>Buy</TableCell>
-                            <TableCell>Rate</TableCell>
-                            <TableCell>Status</TableCell>
-                            <TableCell>Actions</TableCell>
-                        </TableRow>
-                    </TableHead>
-                    <TableBody>
-                        {orders.map((order) => (
-                            <TableRow key={order.orderID}>
-                                <TableCell>{order.orderID}</TableCell>
-                                <TableCell>{order.baseAmount} EURe</TableCell>
-                                <TableCell>{order.requestedAmount} USDC</TableCell>
-                                <TableCell>{order.requestedAmount}</TableCell>
-                                <TableCell>{order.complete ? "Complete" : "Pending"}</TableCell>
-                                <TableCell>
-                                    <Tooltip title="Message Buyer">
-                                        <ExtraIconButton onClick={() => setMessagingWith({ peer: "0x66c58e1E3437d64818d7bE00f30CcDF4C859eADf", product: null })}>
-                                            <MessageIcon fontSize="medium" />
-                                        </ExtraIconButton>
-                                    </Tooltip>
-                                    <Tooltip title="Pay Buyer">
-                                        {/* {authContext && (
+                        {/* Buttons on the right */}
+                        <Grid item xs={6} md={10}>
+                            <Stack direction="column" spacing={2} alignItems="flex-start">
+                                {/* First button */}
+                                <Typography variant="h2" fontWeight={900}>
+                                    Total Volume: 110,201 EURe
+                                </Typography>
+                                <Typography variant="h4" p={0} fontWeight={700}>
+                                    Total Orders: 100
+                                </Typography>
+                                <Typography variant="h4" p={0} fontWeight={700}>
+                                    Rating: 3/5
+                                </Typography>
+                                <Typography variant="h4" p={0} fontWeight={700}>
+                                    Safe: {selectedSafe}
+                                </Typography>
+                                <Button variant="contained" onClick={handleModalOpen}>
+                                    Create Order
+                                </Button>
+                                <Monerium
+                                    authContext={authContext}
+                                    setAuthContext={setAuthContext}
+                                    isTransferOpen={isTransferOpen}
+                                    setTransferClose={handleTransferClose}
+                                    order={order}
+                                    setOrder={setOrder}
+                                />
+                            </Stack>
+                        </Grid>
+                    </Grid>
+                    {messagingWith && (<SecureChat
+                        orderID={"Message 0x66"}
+                        peer={messagingWith?.peer || ""}
+                        isOpen={!!messagingWith}
+                        onClose={() => setMessagingWith(undefined)}
+                        isLoading={false}
+                        peerNickname="Maker"
+                    />)
+                    }
+                    <h1>Active Orders</h1>
+                    <TableContainer component={Paper}>
+                        <Table>
+                            <TableHead>
+                                <TableRow>
+                                    <TableCell>ID</TableCell>
+                                    <TableCell>Sell</TableCell>
+                                    <TableCell>Buy</TableCell>
+                                    <TableCell>Rate</TableCell>
+                                    <TableCell>Status</TableCell>
+                                    <TableCell>Actions</TableCell>
+                                </TableRow>
+                            </TableHead>
+                            <TableBody>
+                                {orders.map((order) => (
+                                    <TableRow key={order.orderID}>
+                                        <TableCell>{order.orderID}</TableCell>
+                                        <TableCell>{order.baseAmount} EURe</TableCell>
+                                        <TableCell>{order.requestedAmount} USDC</TableCell>
+                                        <TableCell>{order.requestedAmount}</TableCell>
+                                        <TableCell>{order.complete ? "Complete" : "Pending"}</TableCell>
+                                        <TableCell>
+                                            <Tooltip title="Message Buyer">
+                                                <ExtraIconButton onClick={() => setMessagingWith({ peer: "0x66c58e1E3437d64818d7bE00f30CcDF4C859eADf", product: null })}>
+                                                    <MessageIcon fontSize="medium" />
+                                                </ExtraIconButton>
+                                            </Tooltip>
+                                            <Tooltip title="Pay Buyer">
+                                                {/* {authContext && (
                                             <Button variant="contained" onClick={handleTransferOpen(order)}>
                                                 Transfer
                                             </Button>
                                         )} */}
-                                        <ExtraIconButton onClick={() => handleTransferOpen(order)}>
-                                            <EuroIcon fontSize="medium" />
-                                        </ExtraIconButton>
-                                    </Tooltip>
-                                    <Tooltip title="View Review">
-                                        <ExtraIconButton onClick={() => setViewReview({})}>
-                                            <AutoAwesomeOutlinedIcon fontSize="medium" />
-                                        </ExtraIconButton>
-                                    </Tooltip>
-                                </TableCell>
-                            </TableRow>
-                        ))}
-                    </TableBody>
-                </Table>
-            </TableContainer>
-            <h1>Previous Orders</h1>
-            <TableContainer component={Paper}>
-                <Table>
-                    <TableHead>
-                        <TableRow>
-                            <TableCell>ID</TableCell>
-                            <TableCell>Sell</TableCell>
-                            <TableCell>Buy</TableCell>
-                            <TableCell>Rate</TableCell>
-                            <TableCell>Status</TableCell>
-                        </TableRow>
-                    </TableHead>
-                    <TableBody>
-                        {orders.map((order) => (
-                            <TableRow key={order.orderID}>
-                                <TableCell>{order.orderID}</TableCell>
-                                <TableCell>{order.baseAmount} EURe</TableCell>
-                                <TableCell>{order.requestedAmount} USDC</TableCell>
-                                <TableCell>{order.requestedAmount}</TableCell>
-                                <TableCell>{order.complete ? "Complete" : "Pending"}</TableCell>
-                                {/* <TableCell>{order.}</TableCell> */}
-                            </TableRow>
-                        ))}
-                    </TableBody>
-                </Table>
-            </TableContainer>
-        </Box>
+                                                <ExtraIconButton onClick={() => handleTransferOpen(order)}>
+                                                    <EuroIcon fontSize="medium" />
+                                                </ExtraIconButton>
+                                            </Tooltip>
+                                            <Tooltip title="View Review">
+                                                <ExtraIconButton onClick={() => setViewReview({})}>
+                                                    <AutoAwesomeOutlinedIcon fontSize="medium" />
+                                                </ExtraIconButton>
+                                            </Tooltip>
+                                        </TableCell>
+                                    </TableRow>
+                                ))}
+                            </TableBody>
+                        </Table>
+                    </TableContainer>
+                    <h1>Previous Orders</h1>
+                    <TableContainer component={Paper}>
+                        <Table>
+                            <TableHead>
+                                <TableRow>
+                                    <TableCell>ID</TableCell>
+                                    <TableCell>Sell</TableCell>
+                                    <TableCell>Buy</TableCell>
+                                    <TableCell>Rate</TableCell>
+                                    <TableCell>Status</TableCell>
+                                </TableRow>
+                            </TableHead>
+                            <TableBody>
+                                {orders.map((order) => (
+                                    <TableRow key={order.orderID}>
+                                        <TableCell>{order.orderID}</TableCell>
+                                        <TableCell>{order.baseAmount} EURe</TableCell>
+                                        <TableCell>{order.requestedAmount} USDC</TableCell>
+                                        <TableCell>{order.requestedAmount}</TableCell>
+                                        <TableCell>{order.complete ? "Complete" : "Pending"}</TableCell>
+                                        {/* <TableCell>{order.}</TableCell> */}
+                                    </TableRow>
+                                ))}
+                            </TableBody>
+                        </Table>
+                    </TableContainer>
+                </Box>
+            ) : (
+                <TakerOrders></TakerOrders>
+            )}
+        </div>
     )
 }
 
