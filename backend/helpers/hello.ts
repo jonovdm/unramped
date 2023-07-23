@@ -7,8 +7,8 @@ import fs from "fs";
 
 const safeAddr = "0xf531015eED9fedb529B305665515F730603DF765"
 const takerAddr = "0xF89f224eF382f6C3D9D43876E16a04A8dDF4c861"
-const rampManagerAddr = "0xa007D304BB087EB16183EBCD962A1e7576830c1E"
-const escrowModuleAddr = "0xC1012E53B34c4694FEa5aeC3462A504aC74D3c9F"
+const rampManagerAddr = "0xA163AcbE01b2E7a7a9f2CcF8fC39CB2DB30322b6"
+const escrowModuleAddr = "0xaA4B86dee92f9A28E73C7004A5fE83aAE27e80e8"
 
 const orderID = "0x910fd194f2fca37b6b13ca1727a3d2a5e6a13d13413f0e763e5090457c602031"
 
@@ -63,8 +63,7 @@ async function create() {
         escrowModule.address,
         ethers.utils.parseEther("1"),
         mumbaiUSDC,
-        ethers.utils.parseEther("0.01"),
-        []
+        ethers.utils.parseEther("0.01")
     )
     const orderSafeTx = await safe.execTransaction(
         rampManager.address, 0, orderPopTx.data as string, 0, 0, 0, 0, "0x0000000000000000000000000000000000000000", "0x0000000000000000000000000000000000000000", prevalidSig

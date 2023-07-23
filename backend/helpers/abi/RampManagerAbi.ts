@@ -64,6 +64,90 @@ export const RampManagerAbi = [
     "type": "event"
   },
   {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "orderID",
+        "type": "bytes32"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "escrow",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "taker",
+        "type": "address"
+      }
+    ],
+    "name": "OrderFulfilled",
+    "type": "event"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
+      }
+    ],
+    "name": "_orders",
+    "outputs": [
+      {
+        "internalType": "bytes32",
+        "name": "orderID",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "address",
+        "name": "escrow",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "escrowChain",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "baseAmount",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "requestedAsset",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "requestedAmount",
+        "type": "uint256"
+      },
+      {
+        "internalType": "bool",
+        "name": "complete",
+        "type": "bool"
+      },
+      {
+        "internalType": "address",
+        "name": "taker",
+        "type": "address"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "takerIBAN",
+        "type": "bytes32"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
     "inputs": [
       {
         "internalType": "bytes32",
@@ -110,11 +194,6 @@ export const RampManagerAbi = [
         "internalType": "uint256",
         "name": "_requestedAmount",
         "type": "uint256"
-      },
-      {
-        "internalType": "uint256[]",
-        "name": "_acceptedChains",
-        "type": "uint256[]"
       }
     ],
     "name": "createOrder",
@@ -188,11 +267,6 @@ export const RampManagerAbi = [
             "type": "bool"
           },
           {
-            "internalType": "uint256[]",
-            "name": "acceptedChains",
-            "type": "uint256[]"
-          },
-          {
             "internalType": "address",
             "name": "taker",
             "type": "address"
@@ -201,87 +275,6 @@ export const RampManagerAbi = [
             "internalType": "bytes32",
             "name": "takerIBAN",
             "type": "bytes32"
-          },
-          {
-            "internalType": "uint256",
-            "name": "takerChain",
-            "type": "uint256"
-          }
-        ],
-        "internalType": "struct RampManager.Order",
-        "name": "",
-        "type": "tuple"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "bytes32",
-        "name": "_orderID",
-        "type": "bytes32"
-      }
-    ],
-    "name": "getOrders",
-    "outputs": [
-      {
-        "components": [
-          {
-            "internalType": "bytes32",
-            "name": "orderID",
-            "type": "bytes32"
-          },
-          {
-            "internalType": "address",
-            "name": "escrow",
-            "type": "address"
-          },
-          {
-            "internalType": "uint256",
-            "name": "escrowChain",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "baseAmount",
-            "type": "uint256"
-          },
-          {
-            "internalType": "address",
-            "name": "requestedAsset",
-            "type": "address"
-          },
-          {
-            "internalType": "uint256",
-            "name": "requestedAmount",
-            "type": "uint256"
-          },
-          {
-            "internalType": "bool",
-            "name": "complete",
-            "type": "bool"
-          },
-          {
-            "internalType": "uint256[]",
-            "name": "acceptedChains",
-            "type": "uint256[]"
-          },
-          {
-            "internalType": "address",
-            "name": "taker",
-            "type": "address"
-          },
-          {
-            "internalType": "bytes32",
-            "name": "takerIBAN",
-            "type": "bytes32"
-          },
-          {
-            "internalType": "uint256",
-            "name": "takerChain",
-            "type": "uint256"
           }
         ],
         "internalType": "struct RampManager.Order",
@@ -318,6 +311,25 @@ export const RampManagerAbi = [
     "name": "onboardMaker",
     "outputs": [],
     "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "name": "orderList",
+    "outputs": [
+      {
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
+      }
+    ],
+    "stateMutability": "view",
     "type": "function"
   }
 ]
